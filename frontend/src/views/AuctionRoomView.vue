@@ -1,19 +1,18 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { getAuctionApi, joinAuctionApi, listBidsApi, placeBidApi } from '@/api/auction'
 import { ApiError } from '@/api/http'
 import { useAuthStore } from '@/stores/auth'
 import { useWalletStore } from '@/stores/wallet'
-import type { Auction, Bid } from '@/types'
+import type { Auction, Bid, Participant, WsMessage } from '@/types'
 import { STATUS_META, formatPrice, formatDateTime, newRequestId } from '@/utils/format'
+import { AuctionChannel, type ChannelStatus } from '@/realtime/auctionChannel'
 import Countdown from '@/components/Countdown.vue'
 
 const props = defineProps<{
   id: string
 }>()
 
-const route = useRoute()
 const auth = useAuthStore()
 const walletStore = useWalletStore()
 
@@ -29,7 +28,13 @@ const bidAmount = ref<number | null>(null)
 const submittingBid = ref(false)
 const bidFeedback = ref<{ kind: 'success' | 'error' | 'info'; text: string } | null>(null)
 
+// 实时通道状态
+const channelStatus = ref<ChannelStatus>('idle')
+const channelNote = ref('')
+let channel: AuctionChannel | null = null
+
 let pollTimer: number | undefined
+let pollTickCount = 0
 
 // ---------- 数据加载 ----------
 
@@ -42,7 +47,8 @@ async function loadDetail(silent = false) {
   }
   if (!silent) loading.value = true
   try {
-    auction.value = await getAuctionApi(id)
+    const detail = await getAuctionApi(id)
+    applyDetail(detail)
   } catch (e) {
     if (!silent) {
       loadError.value =
@@ -53,21 +59,36 @@ async function loadDetail(silent = false) {
   }
 }
 
+/** 详情合并（保留本地已知参与者名单的展示名） */
+function applyDetail(detail: Auction) {
+  const prev = auction.value
+  if (prev && detail.participants.length === 0) {
+    detail.participants = prev.participants
+  }
+  auction.value = detail
+  channel?.seedSeq(detail.seq)
+}
+
 async function loadBids() {
   try {
     bids.value = await listBidsApi(Number(props.id))
   } catch {
-    // 历史加载失败不打断主界面，下次轮询重试
+    // 历史加载失败不打断主界面，下次轮询/事件重试
   }
 }
+
+// ---------- 轮询（WS 在线时降频为安全网） ----------
 
 function startPolling() {
   stopPolling()
   pollTimer = window.setInterval(() => {
     if (document.visibilityState !== 'visible') return
+    pollTickCount += 1
+    const realtime = channelStatus.value === 'connected'
+    if (realtime && pollTickCount % 7 !== 0) return // 连接健康时 ~21s 兜底一次
     loadDetail(true)
     loadBids()
-    if (auction.value && (auction.value.status === 'RUNNING' || auction.value.status === 'SETTLING')) {
+    if (auction.value && ['RUNNING', 'SETTLING'].includes(auction.value.status)) {
       walletStore.refresh().catch(() => {})
     }
   }, 3000)
@@ -80,25 +101,177 @@ function stopPolling() {
   }
 }
 
+// ---------- WebSocket 实时事件 ----------
+
+function applyWsEvent(msg: WsMessage) {
+  const a = auction.value
+  if (!a || msg.auctionId !== a.id) return
+  switch (msg.type) {
+    case 'AUCTION_SNAPSHOT': {
+      a.status = msg.status
+      a.title = msg.title
+      a.startPrice = msg.startPrice
+      a.minIncrement = msg.minIncrement
+      a.currentPrice = msg.currentPrice
+      a.currentLeaderId = msg.currentLeaderId
+      a.currentLeaderName = null
+      a.startedAt = msg.startTime ?? a.startedAt
+      a.endTime = msg.endTime ?? a.endTime
+      a.extendCount = msg.extendCount
+      a.maxExtends = msg.maxExtends
+      a.settleReason = msg.settleReason
+      if (Array.isArray(msg.participants) && msg.participants.length > 0) {
+        const known = new Map(a.participants.map((p) => [p.userId, p]))
+        a.participants = msg.participants.map((sp) => {
+          const prev = known.get(sp.userId)
+          return {
+            userId: sp.userId,
+            displayName: sp.displayName || prev?.displayName || `用户 #${sp.userId}`,
+            type: sp.type ?? prev?.type ?? 'HUMAN',
+            joinedAt: sp.joinedAt ?? prev?.joinedAt ?? msg.serverTime,
+          } satisfies Participant
+        })
+        a.participantCount = a.participants.length
+      }
+      if (msg.currentLeaderId != null) {
+        a.currentLeaderName = leaderNameOf(msg.currentLeaderId)
+      }
+      if (msg.status === 'FINISHED' || msg.status === 'CANCELLED') {
+        // 结算结果（赢家名/时间）以 HTTP detail 为准，补拉一次
+        loadDetail(true)
+        loadBids()
+        walletStore.refresh().catch(() => {})
+      }
+      break
+    }
+    case 'PARTICIPANT_JOINED': {
+      if (!a.participants.some((p) => p.userId === msg.userId)) {
+        a.participants = [
+          ...a.participants,
+          {
+            userId: msg.userId,
+            displayName: `用户 #${msg.userId}`,
+            type: msg.participantType ?? 'HUMAN',
+            joinedAt: msg.serverTime,
+          },
+        ]
+        a.participantCount = a.participants.length
+      }
+      break
+    }
+    case 'BID_ACCEPTED': {
+      const prevLeader = a.currentLeaderId
+      a.currentPrice = msg.currentPrice
+      a.currentLeaderId = msg.leaderId
+      a.currentLeaderName = leaderNameOf(msg.leaderId)
+      if (msg.endTime) a.endTime = msg.endTime
+      if (!bids.value.some((b) => b.seq === msg.seq)) {
+        bids.value = [
+          {
+            id: -msg.seq,
+            auctionId: a.id,
+            userId: msg.bidderId,
+            amount: msg.amount,
+            requestId: '',
+            seq: msg.seq,
+            createdAt: msg.serverTime,
+          },
+          ...bids.value,
+        ]
+      }
+      if (msg.bidderId !== myUserId.value && prevLeader === myUserId.value) {
+        bidFeedback.value = { kind: 'info', text: '你已被超越，冻结金额已释放，可继续出价' }
+      }
+      if (msg.bidderId === myUserId.value || prevLeader === myUserId.value) {
+        walletStore.refresh().catch(() => {})
+      }
+      break
+    }
+    case 'BID_REJECTED': {
+      bidFeedback.value = { kind: 'error', text: `出价被拒绝：${msg.message || msg.reason}` }
+      break
+    }
+    case 'AUCTION_EXTENDED': {
+      a.endTime = msg.toTime
+      a.extendCount = msg.extendCount
+      bidFeedback.value = {
+        kind: 'info',
+        text: `最后时刻出价，延时 +${Math.round((msg.toTime - msg.fromTime) / 1000)}s（第 ${msg.extendCount}/${a.maxExtends} 次）`,
+      }
+      break
+    }
+    case 'AUCTION_FINISHED': {
+      a.status = 'FINISHED'
+      a.settleReason = msg.reason
+      if (!a.result || a.result.winnerId !== msg.winnerId || a.result.finalPrice !== msg.finalPrice) {
+        a.result = {
+          winnerId: msg.winnerId,
+          winnerName: msg.winnerId != null ? leaderNameOf(msg.winnerId) : null,
+          finalPrice: msg.finalPrice,
+          reason: msg.reason === 'CANCELLED' ? 'CANCELLED' : 'EXPIRED',
+          settledAt: msg.serverTime,
+        }
+      }
+      loadDetail(true)
+      loadBids()
+      walletStore.refresh().catch(() => {})
+      break
+    }
+    case 'AUCTION_STARTED': {
+      a.status = 'RUNNING'
+      a.startedAt = msg.startTime
+      a.endTime = msg.endTime
+      a.currentPrice = msg.currentPrice
+      bidFeedback.value = { kind: 'info', text: '拍卖已开始，可以加入并出价了' }
+      break
+    }
+    case 'CONNECTION_STATE': {
+      if (msg.state === 'rejected') channelNote.value = msg.reason || '连接被服务端拒绝'
+      break
+    }
+  }
+}
+
+function leaderNameOf(userId: number): string {
+  if (userId === myUserId.value) return auth.displayName
+  const p = auction.value?.participants.find((x) => x.userId === userId)
+  return p?.displayName || `用户 #${userId}`
+}
+
+// ---------- 生命周期 ----------
+
 onMounted(async () => {
   await loadDetail()
   loadBids()
   walletStore.refresh().catch(() => {})
-  if (auction.value && ['RUNNING', 'SETTLING'].includes(auction.value.status)) {
-    startPolling()
+
+  const a = auction.value
+  if (a && auth.token && !['FINISHED', 'CANCELLED'].includes(a.status)) {
+    channel = new AuctionChannel(a.id, auth.token, {
+      onEvent: applyWsEvent,
+      onStatus: (s, detail) => {
+        channelStatus.value = s
+        if (detail) channelNote.value = detail
+      },
+    })
+    channel.seedSeq(a.seq)
+    channel.connect()
   }
+  startPolling()
 })
 
-onBeforeUnmount(stopPolling)
+onBeforeUnmount(() => {
+  channel?.close()
+  channel = null
+  stopPolling()
+})
 
 // ---------- 状态派生 ----------
 
 const statusMeta = computed(() => (auction.value ? STATUS_META[auction.value.status] : null))
 const isRunning = computed(() => auction.value?.status === 'RUNNING')
 const myUserId = computed(() => auth.user?.id ?? null)
-const isJoined = computed(
-  () => !!auction.value?.participants.some((p) => p.userId === myUserId.value),
-)
+const isJoined = computed(() => !!auction.value?.participants.some((p) => p.userId === myUserId.value))
 const hasBid = computed(() => auction.value?.currentLeaderId != null)
 const isLeader = computed(() => auction.value?.currentLeaderId === myUserId.value)
 
@@ -109,6 +282,28 @@ const minNextBid = computed(() => {
 })
 
 const quickSteps = [1, 5, 20]
+
+// 价格上移后，若输入框低于新最低价则自动顶到最低价
+watch(minNextBid, (mn) => {
+  if (bidAmount.value == null || bidAmount.value < mn) bidAmount.value = mn
+})
+
+const channelBadge = computed(() => {
+  switch (channelStatus.value) {
+    case 'connected':
+      return { text: '实时', cls: 'ch-live' }
+    case 'connecting':
+      return { text: '连接中', cls: 'ch-wait' }
+    case 'reconnecting':
+      return { text: '重连中', cls: 'ch-wait' }
+    case 'rejected':
+      return { text: '实时被拒', cls: 'ch-off' }
+    case 'closed':
+      return { text: '离线', cls: 'ch-off' }
+    default:
+      return { text: '离线', cls: 'ch-off' }
+  }
+})
 
 function quickBid(multiplier: number) {
   const base = bidAmount.value ?? minNextBid.value
@@ -184,7 +379,8 @@ async function onBid() {
     auction.value.currentLeaderId = myUserId.value
     auction.value.currentLeaderName = auth.displayName
     auction.value.seq = res.seq
-    if (!res.idempotentReplay) {
+    channel?.seedSeq(res.seq)
+    if (!res.idempotentReplay && !bids.value.some((b) => b.id === res.bidId || b.seq === res.seq)) {
       bids.value = [
         {
           id: res.bidId,
@@ -220,14 +416,14 @@ async function onBid() {
   }
 }
 
-/** 倒计时归零：等待服务端结算（SETTLING → FINISHED 由轮询兜底） */
+/** 倒计时归零：等待服务端结算（SETTLING → FINISHED 由 WS/轮询兜底） */
 function onCountdownEnded() {
   loadDetail(true)
   loadBids()
 }
 
 function goBack() {
-  if (window.history.length > 1) route.name && window.history.back()
+  if (window.history.length > 1) window.history.back()
 }
 </script>
 
@@ -254,13 +450,24 @@ function goBack() {
               <span v-if="isRunning" class="dot dot-pulse"></span>
               {{ statusMeta?.label }}
             </span>
+            <span
+              class="channel-badge mono"
+              :class="channelBadge.cls"
+              :title="channelNote || 'WebSocket 实时通道状态'"
+            >
+              <span class="dot"></span>{{ channelBadge.text }}
+            </span>
           </h1>
           <p class="page-sub mono">#{{ auction.id }} · 创建于 {{ formatDateTime(auction.createdAt) }}</p>
         </div>
       </div>
 
       <!-- 成交/取消 结果横幅 -->
-      <div v-if="auction.status === 'FINISHED' && auction.result" class="alert result-banner" :class="auction.result.winnerId ? 'alert-success' : 'alert-info'">
+      <div
+        v-if="auction.status === 'FINISHED' && auction.result"
+        class="alert result-banner"
+        :class="auction.result.winnerId ? 'alert-success' : 'alert-info'"
+      >
         <div class="result-main">
           <template v-if="auction.result.winnerId">
             🎉 拍卖成交 · 得主 <strong>{{ auction.result.winnerName }}</strong>
@@ -281,7 +488,7 @@ function goBack() {
         <!-- 主列 -->
         <div class="room-main">
           <!-- 实时状态卡 -->
-          <div class="card status-card" :class="{ 'status-running': isRunning }">
+          <div class="card status-card">
             <div class="status-grid">
               <div class="status-cell">
                 <span class="ac-label">{{ hasBid ? '当前最高价' : '起拍价' }}</span>
@@ -292,7 +499,7 @@ function goBack() {
                 <span class="ac-label">领先者</span>
                 <span class="leader-name">
                   <template v-if="hasBid">
-                    {{ auction.currentLeaderName }}
+                    {{ auction.currentLeaderName || `用户 #${auction.currentLeaderId}` }}
                     <span v-if="isLeader" class="you-tag">（你）</span>
                   </template>
                   <template v-else>暂无出价</template>
@@ -332,7 +539,11 @@ function goBack() {
             </template>
 
             <template v-else-if="isRunning && isJoined">
-              <div v-if="bidFeedback" class="alert" :class="`alert-${bidFeedback.kind === 'error' ? 'error' : bidFeedback.kind === 'success' ? 'success' : 'info'}`">
+              <div
+                v-if="bidFeedback"
+                class="alert"
+                :class="`alert-${bidFeedback.kind === 'error' ? 'error' : bidFeedback.kind === 'success' ? 'success' : 'info'}`"
+              >
                 {{ bidFeedback.text }}
               </div>
 
@@ -399,10 +610,10 @@ function goBack() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="b in bids" :key="b.id" :class="{ mine: b.userId === myUserId }">
+                  <tr v-for="b in bids" :key="`${b.seq}-${b.id}`" :class="{ mine: b.userId === myUserId }">
                     <td class="mono dim">{{ formatDateTime(b.createdAt) }}</td>
                     <td>
-                      出价人 #{{ b.userId }}
+                      {{ leaderNameOf(b.userId) }}
                       <span v-if="b.userId === myUserId" class="you-tag">（你）</span>
                     </td>
                     <td class="num price">{{ formatPrice(b.amount) }}</td>
@@ -435,7 +646,10 @@ function goBack() {
           </div>
 
           <div class="card">
-            <h3 class="card-title">参与者 <span class="title-count">{{ auction.participants.length || auction.participantCount }}</span></h3>
+            <h3 class="card-title">
+              参与者
+              <span class="title-count">{{ auction.participants.length || auction.participantCount }}</span>
+            </h3>
             <div v-if="(auction.participants.length || 0) === 0" class="empty small-empty">
               <p>暂无参与者</p>
             </div>
@@ -490,6 +704,40 @@ function goBack() {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.channel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+}
+
+.ch-live {
+  color: var(--success);
+  background: var(--success-soft);
+}
+
+.ch-live .dot {
+  animation: dot-pulse 1.6s ease-in-out infinite;
+}
+
+.ch-wait {
+  color: var(--warn);
+  background: var(--warn-soft);
+}
+
+.ch-wait .dot {
+  animation: dot-pulse 0.8s ease-in-out infinite;
+}
+
+.ch-off {
+  color: var(--muted);
+  background: var(--surface-2);
 }
 
 .result-banner {

@@ -207,6 +207,7 @@ export interface WsSnapshotParticipant {
 }
 
 export interface WsSnapshot extends WsEnvelope {
+  type: 'AUCTION_SNAPSHOT'
   status: AuctionStatus
   title: string
   startPrice: number
@@ -222,6 +223,7 @@ export interface WsSnapshot extends WsEnvelope {
 }
 
 export interface WsParticipantJoined extends WsEnvelope {
+  type: 'PARTICIPANT_JOINED'
   userId: number
   /**
    * 契约 §7 中 payload 写作 {userId,type}，与信封字段 type 同名冲突；
@@ -231,6 +233,7 @@ export interface WsParticipantJoined extends WsEnvelope {
 }
 
 export interface WsBidAccepted extends WsEnvelope {
+  type: 'BID_ACCEPTED'
   bidderId: number
   amount: number
   currentPrice: number
@@ -240,12 +243,14 @@ export interface WsBidAccepted extends WsEnvelope {
 
 /** 仅推送给本人 */
 export interface WsBidRejected extends WsEnvelope {
+  type: 'BID_REJECTED'
   requestId: string
   reason: string
   message: string
 }
 
 export interface WsAuctionExtended extends WsEnvelope {
+  type: 'AUCTION_EXTENDED'
   fromTime: number
   toTime: number
   extendCount: number
@@ -253,18 +258,21 @@ export interface WsAuctionExtended extends WsEnvelope {
 }
 
 export interface WsAuctionFinished extends WsEnvelope {
+  type: 'AUCTION_FINISHED'
   reason: string
   winnerId: number | null
   finalPrice: number
 }
 
 export interface WsAuctionStarted extends WsEnvelope {
+  type: 'AUCTION_STARTED'
   startTime: number
   endTime: number
   currentPrice: number
 }
 
 export interface WsConnectionState extends WsEnvelope {
+  type: 'CONNECTION_STATE'
   state: 'connected' | 'rejected' | 'ping'
   reason?: string
 }
