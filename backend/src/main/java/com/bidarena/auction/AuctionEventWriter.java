@@ -54,10 +54,12 @@ public class AuctionEventWriter {
         }
     }
 
-    /** 查询某 seq 之后的事件（HTTP 兜底回放） */
+    /** 查询某 seq 之后的事件（HTTP 兜底回放）；空结果归一为空列表 */
     public List<EventRow> since(long auctionId, long fromSeq) throws SQLException {
-        return sql.sql("SELECT seq, payload FROM auction_events WHERE auction_id = ? AND seq >= ? ORDER BY seq ASC",
-                auctionId, fromSeq).queryRowList(EventRow.class);
+        List<EventRow> rows = sql.sql(
+                        "SELECT seq, payload FROM auction_events WHERE auction_id = ? AND seq >= ? ORDER BY seq ASC",
+                        auctionId, fromSeq).queryRowList(EventRow.class);
+        return rows == null ? List.of() : rows;
     }
 
     /** 单事件定向发送（例如 BID_REJECTED 只推给本人） */

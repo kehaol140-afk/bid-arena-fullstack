@@ -43,7 +43,8 @@ public class SettlementScanner {
         log.info("settlement scanner started (interval 1s)");
     }
 
-    void scanOnce() {
+    /** 单轮扫描（幂等可重入；public 供测试与运维直调验证） */
+    public void scanOnce() {
         try {
             long now = System.currentTimeMillis();
             List<Long> due = auctions.findDueIds(now);

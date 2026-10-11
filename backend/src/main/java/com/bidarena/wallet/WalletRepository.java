@@ -39,13 +39,14 @@ public class WalletRepository {
         return v == null ? 0L : v.longValue();
     }
 
-    /** 事务内锁定该场全部持仓行（按 user_id 升序，保证加锁顺序一致） */
+    /** 事务内锁定该场全部持仓行（按 user_id 升序，保证加锁顺序一致）；空结果归一为空列表 */
     public java.util.List<HoldRow> lockHoldsByAuction(long auctionId) throws SQLException {
-        return sql.sql("""
+        java.util.List<HoldRow> rows = sql.sql("""
                         SELECT h.user_id AS user_id, h.amount AS amount
                         FROM wallet_holds h WHERE h.auction_id = ? AND h.amount > 0
                         ORDER BY h.user_id ASC FOR UPDATE
                         """, auctionId).queryRowList(HoldRow.class);
+        return rows == null ? java.util.List.of() : rows;
     }
 
     public void upsertHold(long userId, long auctionId, long amount, long now) throws SQLException {

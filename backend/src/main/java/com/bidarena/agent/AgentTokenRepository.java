@@ -144,11 +144,12 @@ public class AgentTokenRepository {
     }
 
     public List<AgentTokenRow> listByUser(long userId) throws SQLException {
-        return sql.sql("""
+        List<AgentTokenRow> rows = sql.sql("""
                         SELECT id, token_hash, token_prefix, user_id, auction_id, scopes, expires_at, revoked,
                                rate_limit_per_min, request_count, window_started_at, created_at
                         FROM agent_tokens WHERE user_id = ? ORDER BY id DESC
                         """, userId).queryRowList(AgentTokenRow.class);
+        return rows == null ? List.of() : rows;
     }
 
     public long insert(String hash, String prefix, long userId, long auctionId, String scopes,

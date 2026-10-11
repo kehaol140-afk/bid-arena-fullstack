@@ -100,9 +100,10 @@ public class BidRepository {
     }
 
     public List<BidRow> listByAuction(long auctionId, int limit) throws SQLException {
-        return sql.sql("""
+        List<BidRow> rows = sql.sql("""
                         SELECT b.id, b.auction_id, b.user_id, b.amount, b.request_id, b.seq, b.created_at
                         FROM bids b WHERE b.auction_id = ? ORDER BY b.seq DESC LIMIT ?
                         """, auctionId, limit).queryRowList(BidRow.class);
+        return rows == null ? List.of() : rows;
     }
 }

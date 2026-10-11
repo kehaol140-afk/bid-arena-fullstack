@@ -115,6 +115,18 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.2.5</version>
+        <configuration>
+          <!-- 集成测试使用独立的本机测试库，不触碰开发库 bid_arena -->
+          <environmentVariables>
+            <BID_DB_URL>jdbc:mysql://localhost:3306/bid_arena_test?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC</BID_DB_URL>
+            <BID_DB_USER>root</BID_DB_USER>
+            <BID_DB_PASSWORD>123456</BID_DB_PASSWORD>
+          </environmentVariables>
+          <includes>
+            <include>**/*IT.java</include>
+            <include>**/*Test.java</include>
+          </includes>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

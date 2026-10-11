@@ -153,8 +153,10 @@ public class WsConfig {
                                 .sql("SELECT seq, payload FROM auction_events WHERE auction_id = ? AND seq > ? ORDER BY seq ASC",
                                         auctionId, lastSeq)
                                 .queryRowList(com.bidarena.auction.AuctionEventWriter.EventRow.class);
-                for (var r : rows) {
-                    broadcaster.sendRaw(socket, r.getPayload());
+                if (rows != null) {
+                    for (var r : rows) {
+                        broadcaster.sendRaw(socket, r.getPayload());
+                    }
                 }
                 // 无论有无事件，最后补发最新快照供对齐
                 sendSnapshot(socket, auctionId);

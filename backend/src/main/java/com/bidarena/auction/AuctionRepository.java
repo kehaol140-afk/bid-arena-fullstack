@@ -30,16 +30,21 @@ public class AuctionRepository {
     }
 
     public List<Auction> listAll() throws SQLException {
-        return sql.sql("SELECT " + COLS + " FROM auctions ORDER BY id DESC").queryRowList(Auction.class);
+        List<Auction> rows = sql.sql("SELECT " + COLS + " FROM auctions ORDER BY id DESC").queryRowList(Auction.class);
+        return rows == null ? List.of() : rows;
     }
 
-    /** 到期待结算的拍卖（RUNNING 且到期，或滞留 SETTLING——重启恢复用） */
+    /** 到期待结算的拍卖（RUNNING 且到期，或滞留 SETTLING——重启恢复用）。
+     *  注意：Solon queryValueList 空结果返回 null（BUG-1 根因），此处统一归一为空列表。 */
     public List<Long> findDueIds(long nowEpochMs) throws SQLException {
         List<Number> ids = sql.sql("""
                         SELECT id FROM auctions
                         WHERE (status = 'RUNNING' AND end_time <= ?) OR status = 'SETTLING'
                         ORDER BY id ASC
                         """, nowEpochMs).queryValueList();
+        if (ids == null) {
+            return List.of();
+        }
         List<Long> out = new java.util.ArrayList<>(ids.size());
         for (Number n : ids) {
             out.add(n.longValue());
@@ -133,11 +138,12 @@ public class AuctionRepository {
     }
 
     public List<ParticipantRow> listParticipants(long auctionId) throws SQLException {
-        return sql.sql("""
+        List<ParticipantRow> rows = sql.sql("""
                         SELECT p.user_id AS user_id, u.display_name AS display_name,
                                p.participant_type AS participant_type, p.joined_at AS joined_at
                         FROM auction_participants p JOIN users u ON u.id = p.user_id
                         WHERE p.auction_id = ? ORDER BY p.joined_at ASC, p.user_id ASC
                         """, auctionId).queryRowList(ParticipantRow.class);
+        return rows == null ? List.of() : rows;
     }
 }
