@@ -114,6 +114,10 @@ export class ApiClient {
     this.token = t;
   }
 
+  getToken(): string | null {
+    return this.token;
+  }
+
   /** 发送请求。仅网络层故障抛 NetworkError；HTTP/业务码原样返回。 */
   async call<T>(method: string, path: string, body?: unknown): Promise<ApiResponse<T>> {
     const t0 = Date.now();
