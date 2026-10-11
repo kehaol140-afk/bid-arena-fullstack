@@ -1,0 +1,20 @@
+# Solon 应用配置（连接信息由环境变量覆盖，见 DbConfig / .env.example）
+
+# HTTP 端口（smarthttp）
+server.port: 8090
+# WebSocket 独立端口（netty）
+server.websocket.port: 8091
+
+# OpenAPI / Swagger UI（solon-docs-openapi2）
+solon.docs.openapi2:
+  enabled: true
+  title: Bid Arena API
+  description: 多人实时拍卖平台 API（用户会话 Bearer Token / Agent Token 两种认证）
+  version: 1.0.0
+
+# JSON 序列化：长整数以字符串输出，避免前端精度丢失（epoch 毫秒 > 2^53 的理论风险）
+# solon.serialization.snack4.features: DeleteNulls
+
+solon.logging.logger:
+  "com.bidarena":
+    level: INFO
