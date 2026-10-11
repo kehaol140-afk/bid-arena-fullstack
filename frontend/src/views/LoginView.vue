@@ -14,13 +14,13 @@ const submitting = ref(false)
 const error = ref('')
 
 const DEMO_ACCOUNTS = [
-  { role: '管理员', mail: 'admin@example.com' },
-  { role: '竞拍者A', mail: 'bidder_a@example.com' },
+  { role: '管理员', mail: 'admin@example.com', password: 'Admin123456!' },
+  { role: '竞拍者A', mail: 'bidder_a@example.com', password: 'Test123456!' },
 ]
 
-function fillDemo(mail: string) {
-  email.value = mail
-  password.value = 'Test123456!'
+function fillDemo(acc: { mail: string; password: string }) {
+  email.value = acc.mail
+  password.value = acc.password
   error.value = ''
 }
 
@@ -97,14 +97,15 @@ async function onSubmit() {
       </form>
 
       <div class="demo-accounts">
-        <div class="demo-accounts-label">演示账号（点击自动填充，密码 Test123456!）</div>
+        <div class="demo-accounts-label">演示账号（点击自动填充）</div>
         <div class="demo-row">
           <button
             v-for="acc in DEMO_ACCOUNTS"
             :key="acc.mail"
             type="button"
             class="demo-btn"
-            @click="fillDemo(acc.mail)"
+            :title="acc.password"
+            @click="fillDemo(acc)"
           >
             <span class="demo-role">{{ acc.role }}</span>
             <span class="demo-mail">{{ acc.mail }}</span>
