@@ -61,7 +61,8 @@ function Start-DetachedBackend {
 
 $up = $false
 $cmdPid = 0
-for ($attempt = 1; $attempt -le 3 -and -not $up; $attempt++) {
+for ($attempt = 1; $attempt -le 5 -and -not $up; $attempt++) {
+  if ($attempt -gt 1) { Start-Sleep -Seconds (2 + $attempt) } # 干扰呈突发，错峰重试
   $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
   $outLog = Join-Path $logDir "sim-backend-$stamp.log"
   $r = Start-DetachedBackend -LogFile $outLog
@@ -76,7 +77,7 @@ for ($attempt = 1; $attempt -le 3 -and -not $up; $attempt++) {
     } catch { }
   }
 }
-if (-not $up) { throw "backend failed to become healthy after 3 attempts" }
+if (-not $up) { throw "backend failed to become healthy after 5 attempts (external interference suspected, see docs/QA_BLOCKERS.md QA-004)" }
 Write-Host "[run-sim] backend UP (cmdPID=$cmdPid)"
 
 $exitCode = 0
