@@ -35,7 +35,8 @@ function stop() {
 watch(
   () => props.endTime,
   (t) => {
-    if (t != null && t > Date.now()) endedEmitted = false
+    now.value = Date.now()
+    if (t != null && now.value < t) endedEmitted = false
     start()
   },
   { immediate: true },
