@@ -11,8 +11,8 @@
 | 分支 | `main` |
 | 远端 | `https://github.com/kehaol140-afk/bid-arena-fullstack.git` |
 | 基线提交 | `ec2e2ac Initial commit`（仓库初始，仅空 README） |
-| 本检查点提交 | 见 `git log -1`（本文档随 `feat: backend core (auth/auction/bid/settlement/agent/ws) + migration + seed` 提交，提交后本文档将更新 hash）|
-| 推送状态 | 提交后立即 push（若认证失败保留本地，如实报告） |
+| 本检查点提交 | `fbdc517` — feat: backend core on Solon 3.10.7 (...) + flyway migration + idempotent seed（57 files, +4793 行）|
+| 推送状态 | **已推送 origin/main**（ec2e2ac..fbdc517，2026-10-11 本地时间） |
 
 **提交后请以 `git log -1 --format=%H` 的输出为准更新本节。**
 
