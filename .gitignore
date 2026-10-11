@@ -23,3 +23,6 @@ Thumbs.db
 
 # Local runtime
 *.pid
+
+# Simulator reports (machine-readable, keep dir)
+simulator/reports/*.json

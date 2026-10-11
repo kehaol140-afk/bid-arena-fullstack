@@ -1,0 +1,18 @@
+{
+  "name": "bid-arena-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bid Arena black-box multi-user auction simulator. Zero runtime dependencies: Node >=22.6 native fetch/WebSocket + TypeScript type stripping.",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "scripts": {
+    "simulate:auction": "node --experimental-strip-types --disable-warning=ExperimentalWarning src/main.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}
