@@ -1,0 +1,75 @@
+# Bid Arena 一键编排：MySQL 8 + Solon 后端（+ Vue 前端，profile=full，前端就绪后启用）
+# 用法：
+#   cp .env.example .env   # 修改 MYSQL_ROOT_PASSWORD 等
+#   docker compose up -d --build            # mysql + backend（自动迁移+种子）
+#   docker compose --profile full up -d --build   # 含前端（需 frontend/ 提供Dockerfile，见 README）
+# 健康检查：
+#   docker compose ps          # mysql: mysqladmin ping；backend: /api/v1/health
+# 数据持久化：命名卷 mysql-data（绝不自动删除；清理需人工 docker volume rm）
+name: bid-arena
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: bid-arena-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set in .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-bid_arena}
+      TZ: UTC
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+00:00
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 30s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: bid-arena-backend
+    environment:
+      BID_DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-bid_arena}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      BID_DB_USER: root
+      BID_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      BID_DB_POOL_MAX: ${BID_DB_POOL_MAX:-20}
+      TZ: UTC
+    ports:
+      - "${BACKEND_HTTP_PORT:-8090}:8090"
+      - "${BACKEND_WS_PORT:-8091}:8091"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8090/api/v1/health | grep -q '\"code\":0'"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
+    restart: unless-stopped
+
+  # 前端由并行团队开发；frontend/ 提供 Dockerfile 后用 --profile full 启用。
+  frontend:
+    profiles: ["full"]
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bid-arena-frontend
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mysql-data:

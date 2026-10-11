@@ -55,3 +55,22 @@
 - **影响**：API_CONTRACT.md §7 的全部 WebSocket 能力（快照/事件/SYNC/断线重连）当前不可用。与 PARALLEL_HANDOFF 已知风险 #3（WsConfig `Solon.context().getBean` 启动时序未验证）一致。
 - **证据**：`backend/logs/sim-backend-*.log`（有 NettyWsPlugin init、无 Started）；netstat/Get-NetTCPConnection 快照；node 原生 WebSocket 三端口探测 ERROR。
 - **注**：`-Dserver.websocket.port=8191` 覆盖是否生效无法判定（因为任何 WS 端口都未监听）；待后端修复 WS 启动后回归。
+
+## QA-006 [P2/交付环境] Docker 未安装：Compose 只做静态验证
+
+- **状态**：NOT_VERIFIED（本机无 Docker，无法真实拉起容器）
+- **已完成的静态验证（scripts/check-compose.ps1，22/22 PASS）**：
+  - docker-compose.yml 语法经 js-yaml 解析通过（exit 0）
+  - mysql:8.0 服务 + utf8mb4/UTC 参数 + 命名卷 mysql-data（无匿名卷，不自动清理）
+  - backend 多阶段构建（maven:3.9-eclipse-temurin-17 → eclipse-temurin:17-jre）、curl 健康检查、EXPOSE 8090/8091
+  - 依赖编排：backend depends_on mysql(service_healthy)；双健康检查（mysqladmin ping / /api/v1/health）
+  - 环境变量链路：BID_DB_URL→mysql 服务、MYSQL_ROOT_PASSWORD 强制设置（`:?` 快速失败）、.env.example 覆盖全部引用变量
+  - 迁移与种子：由后端启动时 Flyway + 幂等种子自动完成（无需额外 init 脚本，符合 R2.3）
+- **前端服务**：置于 `--profile full`，等 frontend/ 提供 Dockerfile 后启用（前端团队并行开发中）。
+- **待评审环境执行**：
+  ```powershell
+  cp .env.example .env   # 改 MYSQL_ROOT_PASSWORD
+  docker compose up -d --build
+  docker compose ps      # 双服务 healthy
+  Invoke-RestMethod http://localhost:8090/api/v1/health
+  ```
