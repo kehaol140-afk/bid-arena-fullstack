@@ -1,0 +1,53 @@
+{
+  "results": [
+    {
+      "name": "S1 login page renders (Vue app + router guard)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S2 bidder_a login -> auth persisted, path=/login",
+      "ok": false,
+      "detail": "path=/login"
+    },
+    {
+      "name": "S3 auction list shows prepared auction",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S4 auction room renders start price 100",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S5 join via UI button",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S6 bid 110 via UI (HTTP) -> feedback + price",
+      "ok": true,
+      "detail": "price=110"
+    },
+    {
+      "name": "S7 WebSocket live push: B bid 150 via API -> room price updated + outbid notice",
+      "ok": true,
+      "detail": "httpBid=0 outbidNotice=true"
+    },
+    {
+      "name": "S8 wallet view renders balance/frozen/ledger",
+      "ok": true,
+      "detail": "balanceShown=true ledgerShown=true"
+    },
+    {
+      "name": "S9 auto-settle -> room shows finished result via WS",
+      "ok": true,
+      "detail": "banner= 🎉 拍卖成交 · 得主 竞拍者B ，成交价 150 积分 结算时间 2026-10-12 21:02:47"
+    }
+  ],
+  "counts": {
+    "PASS": 8,
+    "FAIL": 1
+  }
+}

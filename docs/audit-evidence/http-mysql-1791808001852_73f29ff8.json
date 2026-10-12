@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-12T12:26:51.980Z",
+  "database": "bid_arena_codex_http_1791808001852_73f29ff8",
+  "ports": [
+    8290,
+    8291,
+    8300,
+    8301
+  ],
+  "results": [
+    {
+      "name": "Fresh MySQL migrations/seed/DRAFT/default180",
+      "status": "PASS",
+      "durationMs": 1048
+    },
+    {
+      "name": "HTTP login and role/DTO binding",
+      "status": "PASS",
+      "durationMs": 619
+    },
+    {
+      "name": "OpenAPI accessible with actual required operations and security",
+      "status": "PASS",
+      "durationMs": 217
+    },
+    {
+      "name": "Create/start/join events and same-path GET/POST bids",
+      "status": "PASS",
+      "durationMs": 747
+    },
+    {
+      "name": "Missing/fractional/oversized bid amount rejected without writes",
+      "status": "FAIL",
+      "durationMs": 656,
+      "error": "Expected values to be strictly equal:\n\n500 !== 400\n"
+    }
+  ],
+  "summary": {
+    "PASS": 4,
+    "FAIL": 1
+  },
+  "limitations": [
+    "Recovery fixture commits SETTLING while the server is stopped; not a power-loss test during fsync.",
+    "Two JVMs share MySQL; WebSocket push remains process-local.",
+    "Docker runtime not tested by this script."
+  ]
+}

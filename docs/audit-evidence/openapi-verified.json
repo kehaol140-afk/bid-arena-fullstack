@@ -1,0 +1,964 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "127.0.0.1:8290",
+    "version": "1.0.0",
+    "title": "Bid Arena API"
+  },
+  "host": "localhost:8290",
+  "tags": [
+    {
+      "name": "HealthController",
+      "description": " (HealthController)"
+    },
+    {
+      "name": "AdminAgentTokenController",
+      "description": "api/v1/admin/agent-tokens (AdminAgentTokenController)"
+    },
+    {
+      "name": "AdminAuctionController",
+      "description": "api/v1/admin/auctions (AdminAuctionController)"
+    },
+    {
+      "name": "AgentController",
+      "description": "api/v1/agent (AgentController)"
+    },
+    {
+      "name": "BidController",
+      "description": "api/v1/auctions/{id}/bids (BidController)"
+    },
+    {
+      "name": "AuctionController",
+      "description": "api/v1/auctions (AuctionController)"
+    },
+    {
+      "name": "AuthController",
+      "description": "api/v1/auth (AuthController)"
+    },
+    {
+      "name": "UserController",
+      "description": "api/v1/users (UserController)"
+    },
+    {
+      "name": "WalletController",
+      "description": "api/v1/wallets (WalletController)"
+    }
+  ],
+  "paths": {
+    "/api/v1/auctions/{id}/bids": {
+      "get": {
+        "tags": [
+          "BidController"
+        ],
+        "summary": "Read BidController",
+        "description": "",
+        "operationId": "get__api_v1_auctions_{id}_bids",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "long",
+            "readOnly": false
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "BidController"
+        ],
+        "summary": "Write BidController",
+        "description": "",
+        "operationId": "post__api_v1_auctions_{id}_bids",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "long",
+            "readOnly": false
+          },
+          {
+            "in": "body",
+            "name": "data",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Map[api_v1_auctions_{id_bids:POST]",
+              "originalRef": "Map[api_v1_auctions_{id_bids:POST]"
+            }
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auctions": {
+      "get": {
+        "tags": [
+          "AuctionController"
+        ],
+        "summary": "Read AuctionController",
+        "description": "",
+        "operationId": "get__api_v1_auctions",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auctions/{id}/join": {
+      "post": {
+        "tags": [
+          "AuctionController"
+        ],
+        "summary": "Write AuctionController",
+        "description": "",
+        "operationId": "post__api_v1_auctions_{id}_join",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "long",
+            "readOnly": false
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auctions/{id}/events": {
+      "get": {
+        "tags": [
+          "AuctionController"
+        ],
+        "summary": "Read AuctionController",
+        "description": "",
+        "operationId": "get__api_v1_auctions_{id}_events",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "long",
+            "readOnly": false
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "type": "Long",
+            "readOnly": false
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auctions/{id}": {
+      "get": {
+        "tags": [
+          "AuctionController"
+        ],
+        "summary": "Read AuctionController",
+        "description": "",
+        "operationId": "get__api_v1_auctions_{id}",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "long",
+            "readOnly": false
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/agent/wallet": {
+      "get": {
+        "tags": [
+          "AgentController"
+        ],
+        "summary": "Read AgentController",
+        "description": "",
+        "operationId": "get__api_v1_agent_wallet",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "AgentBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/agent/me": {
+      "get": {
+        "tags": [
+          "AgentController"
+        ],
+        "summary": "Read AgentController",
+        "description": "",
+        "operationId": "get__api_v1_agent_me",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "AgentBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/agent/auctions/{id}/join": {
+      "post": {
+        "tags": [
+          "AgentController"
+        ],
+        "summary": "Write AgentController",
+        "description": "",
+        "operationId": "post__api_v1_agent_auctions_{id}_join",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "long",
+            "readOnly": false
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "AgentBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/agent/auctions/{id}": {
+      "get": {
+        "tags": [
+          "AgentController"
+        ],
+        "summary": "Read AgentController",
+        "description": "",
+        "operationId": "get__api_v1_agent_auctions_{id}",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "long",
+            "readOnly": false
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "AgentBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/agent/auctions/{id}/bids": {
+      "get": {
+        "tags": [
+          "AgentController"
+        ],
+        "summary": "Read AgentController",
+        "description": "",
+        "operationId": "get__api_v1_agent_auctions_{id}_bids",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "long",
+            "readOnly": false
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "AgentBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "AgentController"
+        ],
+        "summary": "Write AgentController",
+        "description": "",
+        "operationId": "post__api_v1_agent_auctions_{id}_bids",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "long",
+            "readOnly": false
+          },
+          {
+            "in": "body",
+            "name": "data",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Map[api_v1_agent_auctions_{id_bids:POST]",
+              "originalRef": "Map[api_v1_agent_auctions_{id_bids:POST]"
+            }
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "AgentBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/wallets/me/ledger": {
+      "get": {
+        "tags": [
+          "WalletController"
+        ],
+        "summary": "Read WalletController",
+        "description": "",
+        "operationId": "get__api_v1_wallets_me_ledger",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/wallets/me": {
+      "get": {
+        "tags": [
+          "WalletController"
+        ],
+        "summary": "Read WalletController",
+        "description": "",
+        "operationId": "get__api_v1_wallets_me",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "tags": [
+          "UserController"
+        ],
+        "summary": "Read UserController",
+        "description": "",
+        "operationId": "get__api_v1_users_me",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/agent-tokens": {
+      "get": {
+        "tags": [
+          "AdminAgentTokenController"
+        ],
+        "summary": "Read AdminAgentTokenController",
+        "description": "",
+        "operationId": "get__api_v1_admin_agent-tokens",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "type": "Long",
+            "readOnly": false
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "AdminAgentTokenController"
+        ],
+        "summary": "Write AdminAgentTokenController",
+        "description": "",
+        "operationId": "post__api_v1_admin_agent-tokens",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "data",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Map[api_v1_admin_agent-tokens:POST]",
+              "originalRef": "Map[api_v1_admin_agent-tokens:POST]"
+            }
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/agent-tokens/{id}/revoke": {
+      "post": {
+        "tags": [
+          "AdminAgentTokenController"
+        ],
+        "summary": "Write AdminAgentTokenController",
+        "description": "",
+        "operationId": "post__api_v1_admin_agent-tokens_{id}_revoke",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "long",
+            "readOnly": false
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "HealthController"
+        ],
+        "summary": "Read HealthController",
+        "description": "",
+        "operationId": "get__api_v1_health",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/api/v1/admin/auctions": {
+      "post": {
+        "tags": [
+          "AdminAuctionController"
+        ],
+        "summary": "Write AdminAuctionController",
+        "description": "",
+        "operationId": "post__api_v1_admin_auctions",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "data",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Map[api_v1_admin_auctions:POST]",
+              "originalRef": "Map[api_v1_admin_auctions:POST]"
+            }
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/auctions/{id}/start": {
+      "post": {
+        "tags": [
+          "AdminAuctionController"
+        ],
+        "summary": "Write AdminAuctionController",
+        "description": "",
+        "operationId": "post__api_v1_admin_auctions_{id}_start",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "long",
+            "readOnly": false
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/auctions/{id}/cancel": {
+      "post": {
+        "tags": [
+          "AdminAuctionController"
+        ],
+        "summary": "Write AdminAuctionController",
+        "description": "",
+        "operationId": "post__api_v1_admin_auctions_{id}_cancel",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "long",
+            "readOnly": false
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "AuthController"
+        ],
+        "summary": "Write AuthController",
+        "description": "",
+        "operationId": "post__api_v1_auth_login",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "data",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Map[api_v1_auth_login:POST]",
+              "originalRef": "Map[api_v1_auth_login:POST]"
+            }
+          }
+        ],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": []
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "AuthController"
+        ],
+        "summary": "Write AuthController",
+        "description": "",
+        "operationId": "post__api_v1_auth_logout",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [],
+        "responses": {},
+        "responsesObject": {},
+        "deprecated": false,
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "AgentTokenCreateRequest": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "long"
+        },
+        "auctionId": {
+          "type": "long"
+        },
+        "scopes": {
+          "type": "string"
+        },
+        "expiresInSeconds": {
+          "type": "long"
+        },
+        "rateLimitPerMin": {
+          "type": "integer"
+        }
+      },
+      "title": "AgentTokenCreateRequest"
+    },
+    "BidRequest": {
+      "type": "object",
+      "required": [
+        "amount"
+      ],
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "long",
+          "example": "110",
+          "description": ""
+        }
+      },
+      "title": "BidRequest"
+    },
+    "CreateAuctionRequest": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "startPrice": {
+          "type": "long"
+        },
+        "minIncrement": {
+          "type": "long"
+        },
+        "durationSeconds": {
+          "type": "integer"
+        }
+      },
+      "title": "CreateAuctionRequest"
+    },
+    "LoginRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "title": "LoginRequest"
+    },
+    "Map[api_v1_admin_agent-tokens:POST]": {
+      "properties": {
+        "userId": {
+          "type": "long"
+        },
+        "auctionId": {
+          "type": "long"
+        },
+        "scopes": {
+          "type": "string"
+        },
+        "expiresInSeconds": {
+          "type": "long"
+        },
+        "rateLimitPerMin": {
+          "type": "integer"
+        }
+      },
+      "description": "mineBody"
+    },
+    "Map[api_v1_admin_auctions:POST]": {
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "startPrice": {
+          "type": "long"
+        },
+        "minIncrement": {
+          "type": "long"
+        },
+        "durationSeconds": {
+          "type": "integer"
+        }
+      },
+      "description": "mineBody"
+    },
+    "Map[api_v1_agent_auctions_{id_bids:POST]": {
+      "required": [
+        "amount"
+      ],
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "long",
+          "example": "110",
+          "description": ""
+        }
+      },
+      "description": "mineBody"
+    },
+    "Map[api_v1_auctions_{id_bids:POST]": {
+      "required": [
+        "amount"
+      ],
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "long",
+          "example": "110",
+          "description": ""
+        }
+      },
+      "description": "mineBody"
+    },
+    "Map[api_v1_auth_login:POST]": {
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "description": "mineBody"
+    }
+  },
+  "securityDefinitions": {
+    "SessionBearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "description": "Bearer <session token>; admin operations additionally require ADMIN",
+      "in": "header"
+    },
+    "AgentBearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "description": "Bearer <restricted Agent token>; auction scope and read/bid permissions are enforced",
+      "in": "header"
+    }
+  }
+}

@@ -122,3 +122,6 @@
 1. **Docker 未本机验证**：本机未安装 Docker，docker-compose.yml 按 MySQL 官方镜像与后端 Dockerfile 编写，需评审环境验证。
 2. **录屏**：AI 无法生成视频，需本人录制。
 3. **多实例极端竞争/故障注入**：按要求交由第二轮 Codex 专项加固，已在 CODEX_HANDOFF.md 列明。
+# 独立审计覆盖说明（2026-10-12）
+
+下文为前任需求表，保留历史内容，不作为最新PASS证据。表中AuctionFlowIT、BidTransactionIT、SettlementIT、AgentTokenIT、WebSocketIT、CODEX_HANDOFF.md、TEST_REPORT.md等引用在初始仓库不存在；不能以✅推断实测。最新逐项状态与实际测试路径见CODEX_FINAL_AUDIT.md；修复前缺口见CODEX_AUDIT_REPORT.md。本人决策/AI比例/录屏、Docker启动与Java17容器仍须本人确认或实际执行。

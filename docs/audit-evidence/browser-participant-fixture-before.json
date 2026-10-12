@@ -1,0 +1,10 @@
+{
+  "status": "FAIL",
+  "schema": "bid_arena_codex_browser_1791810580266",
+  "ports": [
+    8480,
+    8481
+  ],
+  "error": "Expected values to be strictly equal:\n\n'1' !== '2'\n",
+  "retainedForReview": true
+}

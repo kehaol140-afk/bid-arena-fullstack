@@ -150,10 +150,11 @@ DRAFT→RUNNING（其他状态 409 `code=2007`）。返回启动后的 detail（
 | 2004 | 409 | 出价迟到（≥截止时间） |
 | 2005 | 409 | requestId 冲突（同号不同内容） |
 | 2007 | 409 | 状态迁移非法 |
+| 2008 | 409 | 事务竞争重试耗尽；保持相同requestId重试 |
 | 3001/3002/3003/3004 | 401/403/403/429 | Agent 认证/范围/权限/频率 |
 | 9999 | 500 | 内部错误（不泄漏细节） |
 
-## 7. WebSocket（已实现 ✅ 代码 / 未冒烟 ⚠）
+## 7. WebSocket（2026-10-12已独立实测，单实例广播）
 
 - 端点：`ws://<host>:8091/ws/auction?token=<用户会话token>&auctionId=<id>`
 - 客户端可发：`PING`（回 CONNECTION_STATE）、`SYNC:<lastSeq>`（补发 >lastSeq 的持久化事件 + 最新快照）。
@@ -163,7 +164,7 @@ DRAFT→RUNNING（其他状态 409 `code=2007`）。返回启动后的 detail（
 ```
 - `type ∈`
   - `AUCTION_SNAPSHOT`：全量权威状态（status,title,startPrice,minIncrement,currentPrice,currentLeaderId,startTime,endTime,extendCount,maxExtends,settleReason,participants[]）——连接即推、SYNC 后必推。
-  - `PARTICIPANT_JOINED`：`{userId,type}`
+  - `PARTICIPANT_JOINED`：`{userId,participantType}`（type仍为事件类型，不得覆盖）
   - `BID_ACCEPTED`：`{bidderId,amount,currentPrice,leaderId,endTime}`
   - `BID_REJECTED`（仅本人）：`{requestId,reason,message}` —— 拒绝不落库、不广播
   - `AUCTION_EXTENDED`：`{fromTime,toTime,extendCount,reason}`
@@ -185,3 +186,5 @@ DRAFT→RUNNING（其他状态 409 `code=2007`）。返回启动后的 detail（
 | 分页（auctions/bids/ledger 目前固定上限 200） | PLAN：后续加 page/size 参数 |
 | Agent 批量出价/代理最高价 | 无此需求，不在范围 |
 | 前端静态资源由后端托管 | PLAN：Docker 阶段决定（nginx 独立或后端 static） |
+
+2026-10-12独立修订：机器可读GET `/openapi.json`实际可访问，按真实Solon路由导出Swagger2及SessionBearer/AgentBearer；未增加Swagger网页UI。前端由既有Vue/Nginx独立服务，同源代理/api、/openapi.json、/ws/；Docker运行仍NOT_VERIFIED。Agent新增GET `/api/v1/agent/wallet`，须auction:read，仅本人，无userId参数。WS snapshot还含currentLeaderName/result；多实例主动推送仅进程内，HTTP/SYNC恢复见DESIGN。其他历史标记不得替代CODEX_FINAL_AUDIT最新证据。

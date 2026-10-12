@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-12T12:09:29.574Z",
+  "database": "bid_arena_codex_http_1791806930229_84354f36",
+  "ports": [
+    8290,
+    8291,
+    8300,
+    8301
+  ],
+  "results": [
+    {
+      "name": "Fresh MySQL migrations/seed/DRAFT/default180",
+      "status": "PASS",
+      "durationMs": 1090
+    },
+    {
+      "name": "HTTP login and role/DTO binding",
+      "status": "PASS",
+      "durationMs": 625
+    },
+    {
+      "name": "OpenAPI accessible with actual required operations and security",
+      "status": "PASS",
+      "durationMs": 199
+    },
+    {
+      "name": "Create/start/join events and same-path GET/POST bids",
+      "status": "PASS",
+      "durationMs": 754
+    },
+    {
+      "name": "WebSocket auth/scope/seq/private rejection/commit visibility",
+      "status": "PASS",
+      "durationMs": 1377
+    },
+    {
+      "name": "Agent plaintext once/hash/scopes/admin+wallet isolation",
+      "status": "PASS",
+      "durationMs": 300
+    },
+    {
+      "name": "Agent expiration/revocation and exact concurrent rate limit",
+      "status": "PASS",
+      "durationMs": 1321
+    },
+    {
+      "name": "Real independent restricted-token Agent strategy bid",
+      "status": "PASS",
+      "durationMs": 11158
+    },
+    {
+      "name": "Second JVM simultaneous scanner unique settlement",
+      "status": "PASS",
+      "durationMs": 8866
+    },
+    {
+      "name": "Process crash after durable SETTLING and restart recovery",
+      "status": "PASS",
+      "durationMs": 6364
+    },
+    {
+      "name": "Final wallet/hold/ledger invariants and list result",
+      "status": "PASS",
+      "durationMs": 580
+    }
+  ],
+  "summary": {
+    "PASS": 11,
+    "FAIL": 0
+  },
+  "limitations": [
+    "Recovery fixture commits SETTLING while the server is stopped; not a power-loss test during fsync.",
+    "Two JVMs share MySQL; WebSocket push remains process-local.",
+    "Docker runtime not tested by this script."
+  ]
+}

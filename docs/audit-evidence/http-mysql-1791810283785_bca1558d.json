@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-12T13:05:23.202Z",
+  "database": "bid_arena_codex_http_1791810283785_bca1558d",
+  "ports": [
+    8290,
+    8291,
+    8300,
+    8301
+  ],
+  "results": [
+    {
+      "name": "Fresh MySQL migrations/seed/DRAFT/default180",
+      "status": "PASS",
+      "durationMs": 1115
+    },
+    {
+      "name": "HTTP login and role/DTO binding",
+      "status": "PASS",
+      "durationMs": 630
+    },
+    {
+      "name": "OpenAPI accessible with actual required operations and security",
+      "status": "PASS",
+      "durationMs": 221
+    },
+    {
+      "name": "Create/start/join events and same-path GET/POST bids",
+      "status": "PASS",
+      "durationMs": 755
+    },
+    {
+      "name": "Missing/fractional/oversized bid amount rejected without writes",
+      "status": "PASS",
+      "durationMs": 953
+    },
+    {
+      "name": "Committed bid with lost HTTP response replays once",
+      "status": "PASS",
+      "durationMs": 662
+    },
+    {
+      "name": "WebSocket auth/scope/seq/private rejection/commit visibility",
+      "status": "PASS",
+      "durationMs": 1364
+    },
+    {
+      "name": "Agent plaintext once/hash/scopes/admin+wallet isolation",
+      "status": "PASS",
+      "durationMs": 294
+    },
+    {
+      "name": "Agent expiration/revocation and exact concurrent rate limit",
+      "status": "PASS",
+      "durationMs": 1322
+    },
+    {
+      "name": "Real independent restricted-token Agent strategy bid",
+      "status": "PASS",
+      "durationMs": 9994
+    },
+    {
+      "name": "Second JVM simultaneous scanner unique settlement",
+      "status": "PASS",
+      "durationMs": 8657
+    },
+    {
+      "name": "Process crash after durable SETTLING and restart recovery",
+      "status": "PASS",
+      "durationMs": 6410
+    },
+    {
+      "name": "Final wallet/hold/ledger invariants and list result",
+      "status": "PASS",
+      "durationMs": 596
+    }
+  ],
+  "summary": {
+    "PASS": 13,
+    "FAIL": 0
+  },
+  "limitations": [
+    "Recovery fixture commits SETTLING while the server is stopped; not a power-loss test during fsync.",
+    "Two JVMs share MySQL; WebSocket push remains process-local.",
+    "Docker runtime not tested by this script."
+  ]
+}

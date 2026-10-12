@@ -1,0 +1,112 @@
+{
+  "schema": "bid_arena_codex_junit_20261012211242",
+  "realMySQL": true,
+  "suites": [
+    {
+      "name": "com.bidarena.it.Bug1FindDueIdsRegressionIT",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "scannerScanOnceSurvivesEmptyResult",
+          "status": "PASS"
+        },
+        {
+          "name": "findDueIdsReturnsEmptyListNotNullWhenNoDue",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "name": "com.bidarena.it.FinalAuditRegressionIT",
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "sqlFailureAfterWalletWritesRollsBackEverything",
+          "status": "PASS"
+        },
+        {
+          "name": "agentTokenNormalizesScopes",
+          "status": "PASS"
+        },
+        {
+          "name": "settlementExceptionKeepsClaimAndRollsBackFundsThenResumes",
+          "status": "PASS"
+        },
+        {
+          "name": "crossAuctionRequestRaceHasOneEffect",
+          "status": "PASS"
+        },
+        {
+          "name": "fundsDeltaOldLeaderAndRejectionRollback",
+          "status": "PASS"
+        },
+        {
+          "name": "bidRacingExpiryHasOneConsistentResult",
+          "status": "PASS"
+        },
+        {
+          "name": "walletLocksFollowAscendingUserOrderAcrossAuctions",
+          "status": "PASS"
+        },
+        {
+          "name": "requestIdCannotReplayAnotherAuction",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicateSettlementCrashRecoveryAndNoBidResult",
+          "status": "PASS"
+        },
+        {
+          "name": "disabledUserSessionIsRejectedAtCredentialBoundary",
+          "status": "PASS"
+        },
+        {
+          "name": "equalDeadlineRejectedAndThreeExtensionsOnly",
+          "status": "PASS"
+        },
+        {
+          "name": "listIncludesLeaderAndResult",
+          "status": "PASS"
+        },
+        {
+          "name": "twoConcurrentUsersHaveSingleLeaderAndConcurrentRetrySingleEffect",
+          "status": "PASS"
+        },
+        {
+          "name": "crossAuctionSharedWalletCannotOverfreeze",
+          "status": "PASS"
+        },
+        {
+          "name": "postCommitBroadcastFailureCannotUndoRealDatabaseBid",
+          "status": "PASS"
+        },
+        {
+          "name": "cancelledAuctionHasCancelledStateAndReleasesFunds",
+          "status": "PASS"
+        },
+        {
+          "name": "requestIdAmountConflictAndLostResponseReplay",
+          "status": "PASS"
+        },
+        {
+          "name": "retryableDatabaseErrorRetriesWholeTransactionOnlyThreeTimes",
+          "status": "PASS"
+        },
+        {
+          "name": "joinEventPreservesEnvelopeType",
+          "status": "PASS"
+        },
+        {
+          "name": "defaultAuctionIsDraft180Seconds",
+          "status": "PASS"
+        }
+      ]
+    }
+  ]
+}

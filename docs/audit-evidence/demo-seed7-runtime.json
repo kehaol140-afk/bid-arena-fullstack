@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "schema": "bid_arena_codex_seed7_1791810979858",
+  "ports": [
+    8470,
+    8471
+  ],
+  "retainedForReview": true
+}

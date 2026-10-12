@@ -1,0 +1,356 @@
+{
+  "meta": {
+    "tool": "bid-arena-simulator",
+    "baseUrl": "http://127.0.0.1:8470",
+    "wsBase": "ws://127.0.0.1:8471",
+    "bots": 20,
+    "seed": 7,
+    "requestedAuctionId": null,
+    "finishedAt": "2026-10-12T13:18:25.647Z",
+    "durationMs": 118944
+  },
+  "counts": {
+    "PASS": 42,
+    "FAIL": 0,
+    "NOT_VERIFIED": 0
+  },
+  "verdict": "ALL_PASS",
+  "records": [
+    {
+      "id": "P0-1",
+      "group": "预检",
+      "name": "GET /api/v1/health 返回 code=0 且 data.status 为字符串",
+      "status": "PASS",
+      "details": "status=UP",
+      "at": 1791810986766
+    },
+    {
+      "id": "P1-1",
+      "group": "认证",
+      "name": "管理员登录成功且 role=ADMIN",
+      "status": "PASS",
+      "details": "userId=1",
+      "at": 1791810986914
+    },
+    {
+      "id": "P1-2",
+      "group": "认证",
+      "name": "GET /users/me（管理员 token）返回本人",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810986923
+    },
+    {
+      "id": "P1-3",
+      "group": "认证",
+      "name": "错误密码 → HTTP 401 / code=1001",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810987064
+    },
+    {
+      "id": "P1-4",
+      "group": "认证",
+      "name": "20 个机器人账号全部登录成功",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810989915
+    },
+    {
+      "id": "P1-5",
+      "group": "认证",
+      "name": "登出后旧 token 访问 /users/me → 401 code=1001",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990071
+    },
+    {
+      "id": "P2-1",
+      "group": "拍卖读取",
+      "name": "GET /api/v1/auctions 返回数组",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990096
+    },
+    {
+      "id": "P2-2",
+      "group": "拍卖读取",
+      "name": "列表按 id 倒序",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990097
+    },
+    {
+      "id": "P2-3",
+      "group": "拍卖读取",
+      "name": "GET /api/v1/auctions/2 必备字段齐全",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990109
+    },
+    {
+      "id": "P3-2",
+      "group": "准备",
+      "name": "20 个机器人钱包基线采集",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990210
+    },
+    {
+      "id": "P3-1",
+      "group": "准备",
+      "name": "现场创建并启动主拍卖",
+      "status": "PASS",
+      "details": "id=3 duration=75s",
+      "at": 1791810990243
+    },
+    {
+      "id": "P4-1",
+      "group": "加入",
+      "name": "20 个机器人 join 成功",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990504
+    },
+    {
+      "id": "P4-2",
+      "group": "加入",
+      "name": "participantCount=20",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990516
+    },
+    {
+      "id": "P4-3",
+      "group": "加入",
+      "name": "重复 join 幂等成功且 participantCount 不变",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990544
+    },
+    {
+      "id": "P4-4",
+      "group": "加入",
+      "name": "加入不产生资金变动",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990548
+    },
+    {
+      "id": "P5-1",
+      "group": "递增出价",
+      "name": "10 次顺序递增出价全部接受且价格/领先者/seq 正确",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990769
+    },
+    {
+      "id": "P5-2",
+      "group": "递增出价",
+      "name": "detail.currentPrice 与最后成功出价一致",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990778
+    },
+    {
+      "id": "P6-1",
+      "group": "并发",
+      "name": "3 人并发同价 310：恰 1 成功、2 个 2002",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990817
+    },
+    {
+      "id": "P6-2",
+      "group": "并发",
+      "name": "相邻价并发（320/330）：最终价=330，失败者均 2002",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990879
+    },
+    {
+      "id": "P6-3",
+      "group": "并发",
+      "name": "4 个相同 requestId 并发提交：全部 200、库中恰 1 条、重放标记正确",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990927
+    },
+    {
+      "id": "P6-4",
+      "group": "并发",
+      "name": "并发后 detail.currentPrice==bids 最高价且 seq 无重复",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810990936
+    },
+    {
+      "id": "P7-1",
+      "group": "幂等",
+      "name": "同 requestId+金额重放：idempotentReplay=true、bidId 不变、不新增出价/流水",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810991002
+    },
+    {
+      "id": "P7-2",
+      "group": "幂等",
+      "name": "同 requestId 不同金额 → 409 code=2005",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810991012
+    },
+    {
+      "id": "P7-3",
+      "group": "拒绝",
+      "name": "低价（359）与平价（350）出价 → 400 code=2002",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810991041
+    },
+    {
+      "id": "P7-4",
+      "group": "拒绝",
+      "name": "拒绝后价格/领先者/seq/冻结均无变化",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810991054
+    },
+    {
+      "id": "P9-1",
+      "group": "WS重连",
+      "name": "连接即收 CONNECTION_STATE(connected) + AUCTION_SNAPSHOT",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810991283
+    },
+    {
+      "id": "P9-2",
+      "group": "WS重连",
+      "name": "在线监听：信封要素齐全、seq 单调、排序后无缺口",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810992997
+    },
+    {
+      "id": "P9-3",
+      "group": "WS重连",
+      "name": "SYNC:37 补发连续事件（1 条）并以快照收尾",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810993074
+    },
+    {
+      "id": "P9-4",
+      "group": "WS重连",
+      "name": "最终快照与 HTTP detail 一致（价格/领先者/状态/截止）",
+      "status": "PASS",
+      "details": "",
+      "at": 1791810993085
+    },
+    {
+      "id": "P8-1",
+      "group": "狙击延时",
+      "name": "3 次最后5秒出价均延时 +10s、extendCount 1→3",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811091740
+    },
+    {
+      "id": "P8-2",
+      "group": "狙击延时",
+      "name": "events 中存在 3 条 AUCTION_EXTENDED（延时与出价同事务）",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811091752
+    },
+    {
+      "id": "P8-3",
+      "group": "狙击延时",
+      "name": "第 4 次最后5秒出价：接受但不延时（maxExtends=3）",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811091789
+    },
+    {
+      "id": "P11-1",
+      "group": "结算",
+      "name": "到期后自动 FINISHED（服务端扫描结算）",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811096743
+    },
+    {
+      "id": "P11-2",
+      "group": "结算",
+      "name": "result 与结算前状态一致（赢家/价格/EXPIRED）",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811096753
+    },
+    {
+      "id": "P11-3",
+      "group": "结算",
+      "name": "FINISHED 后出价 → 409/2001",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811096762
+    },
+    {
+      "id": "P10-1",
+      "group": "余额/迟到",
+      "name": "领先 990 后出 1010：delta 20 > 可用 10 → 400/2003",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811096828
+    },
+    {
+      "id": "P10-2",
+      "group": "余额/迟到",
+      "name": "巨额出价 10000 → 400/2003",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811096837
+    },
+    {
+      "id": "P10-3",
+      "group": "余额/迟到",
+      "name": "两次 2003 后价格与钱包无变化",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811096847
+    },
+    {
+      "id": "P10-4",
+      "group": "余额/迟到",
+      "name": "过期后出价 → 2004（或已被结算 → 2001）：实际 code=2004",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811105056
+    },
+    {
+      "id": "P12-1",
+      "group": "对账",
+      "name": "20 人冻结回收 + 余额守恒（基线相对，含两场拍卖）",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811105633
+    },
+    {
+      "id": "P12-2",
+      "group": "对账",
+      "name": "流水可解释：ΣFREEZE−ΣUNFREEZE=最终持仓；赢家恰 1 条 PAY；无 0 金额流水",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811105633
+    },
+    {
+      "id": "P12-3",
+      "group": "对账",
+      "name": "成交价 == 出价历史最高价且为赢家本人出价",
+      "status": "PASS",
+      "details": "",
+      "at": 1791811105645
+    }
+  ]
+}
