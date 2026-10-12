@@ -1,0 +1,245 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/views/WalletView.vue");import { defineComponent as _defineComponent } from "/node_modules/.vite/deps/vue.js?v=72a752be";
+import { computed, onMounted } from "/node_modules/.vite/deps/vue.js?v=72a752be";
+import { useWalletStore } from "/src/stores/wallet.ts";
+import { formatPrice, formatDateTime, LEDGER_META } from "/src/utils/format.ts";
+const _sfc_main = /* @__PURE__ */ _defineComponent({
+  __name: "WalletView",
+  setup(__props, { expose: __expose }) {
+    __expose();
+    const walletStore = useWalletStore();
+    onMounted(() => {
+      walletStore.refreshAll();
+    });
+    const stats = computed(() => [
+      { label: "余额（积分）", value: walletStore.balance, cls: "stat-ink" },
+      { label: "冻结中（积分）", value: walletStore.frozen, cls: "stat-warn" },
+      { label: "可用（积分）", value: walletStore.available, cls: "stat-ok" }
+    ]);
+    function amountText(n) {
+      return n > 0 ? `+${formatPrice(n)}` : formatPrice(n);
+    }
+    const __returned__ = { walletStore, stats, amountText, get formatPrice() {
+      return formatPrice;
+    }, get formatDateTime() {
+      return formatDateTime;
+    }, get LEDGER_META() {
+      return LEDGER_META;
+    } };
+    Object.defineProperty(__returned__, "__isScriptSetup", { enumerable: false, value: true });
+    return __returned__;
+  }
+});
+import { createElementVNode as _createElementVNode, toDisplayString as _toDisplayString, renderList as _renderList, Fragment as _Fragment, openBlock as _openBlock, createElementBlock as _createElementBlock, normalizeClass as _normalizeClass, createTextVNode as _createTextVNode } from "/node_modules/.vite/deps/vue.js?v=72a752be";
+const _hoisted_1 = { class: "page-head" };
+const _hoisted_2 = ["disabled"];
+const _hoisted_3 = { class: "stat-grid" };
+const _hoisted_4 = { class: "stat-label" };
+const _hoisted_5 = { class: "card" };
+const _hoisted_6 = { class: "card-title" };
+const _hoisted_7 = { class: "title-count" };
+const _hoisted_8 = {
+  key: 0,
+  class: "empty"
+};
+const _hoisted_9 = {
+  key: 1,
+  class: "table-wrap"
+};
+const _hoisted_10 = { class: "table" };
+const _hoisted_11 = { class: "mono dim" };
+const _hoisted_12 = { class: "mono" };
+const _hoisted_13 = { class: "num" };
+const _hoisted_14 = { class: "num" };
+const _hoisted_15 = { class: "dim remark" };
+function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+  return _openBlock(), _createElementBlock("div", null, [
+    _createElementVNode("div", _hoisted_1, [
+      _cache[1] || (_cache[1] = _createElementVNode(
+        "div",
+        null,
+        [
+          _createElementVNode("h1", { class: "page-title" }, "我的钱包"),
+          _createElementVNode("p", { class: "page-sub" }, "可用 = 余额 − 冻结；出价冻结、结算扣款/退还均实时反映")
+        ],
+        -1
+        /* CACHED */
+      )),
+      _createElementVNode("button", {
+        class: "btn btn-ghost",
+        disabled: $setup.walletStore.loading,
+        onClick: _cache[0] || (_cache[0] = ($event) => $setup.walletStore.refreshAll())
+      }, _toDisplayString($setup.walletStore.loading ? "刷新中…" : "刷新"), 9, _hoisted_2)
+    ]),
+    _createElementVNode("div", _hoisted_3, [
+      (_openBlock(true), _createElementBlock(
+        _Fragment,
+        null,
+        _renderList($setup.stats, (s) => {
+          return _openBlock(), _createElementBlock("div", {
+            key: s.label,
+            class: "card stat-card"
+          }, [
+            _createElementVNode(
+              "span",
+              _hoisted_4,
+              _toDisplayString(s.label),
+              1
+              /* TEXT */
+            ),
+            _createElementVNode(
+              "span",
+              {
+                class: _normalizeClass(["stat-value price", s.cls])
+              },
+              _toDisplayString($setup.formatPrice(s.value)),
+              3
+              /* TEXT, CLASS */
+            )
+          ]);
+        }),
+        128
+        /* KEYED_FRAGMENT */
+      ))
+    ]),
+    _createElementVNode("div", _hoisted_5, [
+      _createElementVNode("h3", _hoisted_6, [
+        _cache[2] || (_cache[2] = _createTextVNode(
+          "资金流水 ",
+          -1
+          /* CACHED */
+        )),
+        _createElementVNode(
+          "span",
+          _hoisted_7,
+          _toDisplayString($setup.walletStore.ledger.length) + " 条",
+          1
+          /* TEXT */
+        )
+      ]),
+      $setup.walletStore.ledger.length === 0 && !$setup.walletStore.loading ? (_openBlock(), _createElementBlock("div", _hoisted_8, [..._cache[3] || (_cache[3] = [
+        _createElementVNode(
+          "div",
+          { class: "empty-icon" },
+          "🧾",
+          -1
+          /* CACHED */
+        ),
+        _createElementVNode(
+          "p",
+          null,
+          "暂无流水记录",
+          -1
+          /* CACHED */
+        )
+      ])])) : (_openBlock(), _createElementBlock("div", _hoisted_9, [
+        _createElementVNode("table", _hoisted_10, [
+          _cache[4] || (_cache[4] = _createElementVNode(
+            "thead",
+            null,
+            [
+              _createElementVNode("tr", null, [
+                _createElementVNode("th", null, "时间"),
+                _createElementVNode("th", null, "类型"),
+                _createElementVNode("th", null, "拍卖"),
+                _createElementVNode("th", { class: "num" }, "金额"),
+                _createElementVNode("th", { class: "num" }, "余额后"),
+                _createElementVNode("th", { class: "num" }, "冻结后"),
+                _createElementVNode("th", null, "备注")
+              ])
+            ],
+            -1
+            /* CACHED */
+          )),
+          _createElementVNode("tbody", null, [
+            (_openBlock(true), _createElementBlock(
+              _Fragment,
+              null,
+              _renderList($setup.walletStore.ledger, (e) => {
+                return _openBlock(), _createElementBlock("tr", {
+                  key: e.id
+                }, [
+                  _createElementVNode(
+                    "td",
+                    _hoisted_11,
+                    _toDisplayString($setup.formatDateTime(e.createdAt)),
+                    1
+                    /* TEXT */
+                  ),
+                  _createElementVNode("td", null, [
+                    _createElementVNode(
+                      "span",
+                      {
+                        class: _normalizeClass(["ledger-badge", $setup.LEDGER_META[e.type]?.cls])
+                      },
+                      _toDisplayString($setup.LEDGER_META[e.type]?.label ?? e.type),
+                      3
+                      /* TEXT, CLASS */
+                    )
+                  ]),
+                  _createElementVNode(
+                    "td",
+                    _hoisted_12,
+                    _toDisplayString(e.auctionId != null ? `#${e.auctionId}` : "--"),
+                    1
+                    /* TEXT */
+                  ),
+                  _createElementVNode(
+                    "td",
+                    {
+                      class: _normalizeClass(["num price", e.amount >= 0 ? "amt-in" : "amt-out"])
+                    },
+                    _toDisplayString($setup.amountText(e.amount)),
+                    3
+                    /* TEXT, CLASS */
+                  ),
+                  _createElementVNode(
+                    "td",
+                    _hoisted_13,
+                    _toDisplayString($setup.formatPrice(e.balanceAfter)),
+                    1
+                    /* TEXT */
+                  ),
+                  _createElementVNode(
+                    "td",
+                    _hoisted_14,
+                    _toDisplayString($setup.formatPrice(e.frozenAfter)),
+                    1
+                    /* TEXT */
+                  ),
+                  _createElementVNode(
+                    "td",
+                    _hoisted_15,
+                    _toDisplayString(e.remark ?? ""),
+                    1
+                    /* TEXT */
+                  )
+                ]);
+              }),
+              128
+              /* KEYED_FRAGMENT */
+            ))
+          ])
+        ])
+      ]))
+    ])
+  ]);
+}
+import "/src/views/WalletView.vue?vue&type=style&index=0&scoped=3570dfd3&lang.css";
+_sfc_main.__hmrId = "3570dfd3";
+typeof __VUE_HMR_RUNTIME__ !== "undefined" && __VUE_HMR_RUNTIME__.createRecord(_sfc_main.__hmrId, _sfc_main);
+import.meta.hot.on("file-changed", ({ file }) => {
+  __VUE_HMR_RUNTIME__.CHANGED_FILE = file;
+});
+import.meta.hot.accept((mod) => {
+  if (!mod) return;
+  const { default: updated, _rerender_only } = mod;
+  if (_rerender_only) {
+    __VUE_HMR_RUNTIME__.rerender(updated.__hmrId, updated.render);
+  } else {
+    __VUE_HMR_RUNTIME__.reload(updated.__hmrId, updated);
+  }
+});
+import _export_sfc from "/@id/__x00__plugin-vue:export-helper";
+export default /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render], ["__scopeId", "data-v-3570dfd3"], ["__file", "E:/全栈测试-拍卖间/bid-arena-fullstack/frontend/src/views/WalletView.vue"]]);
+
+//# sourceMappingURL=data:application/json;base64,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QUFsQyxtQkFBWSxFQUFFLFdBQVc7QUFBQTtBQUFBO0FBQUE7QUFBQSxrQkFDNUM7QUFBQSxvQkFBZ0Q7QUFBQSxvQkFBaEQ7QUFBQSxvQkFBZ0QsaUJBQXRCLEVBQUUsVUFBTTtBQUFBO0FBQUE7QUFBQTtBQUFBIiwibmFtZXMiOltdLCJpZ25vcmVMaXN0IjpbXSwic291cmNlcyI6WyJXYWxsZXRWaWV3LnZ1ZSJdLCJzb3VyY2VzQ29udGVudCI6WyI8c2NyaXB0IHNldHVwIGxhbmc9XCJ0c1wiPlxyXG5pbXBvcnQgeyBjb21wdXRlZCwgb25Nb3VudGVkIH0gZnJvbSAndnVlJ1xyXG5pbXBvcnQgeyB1c2VXYWxsZXRTdG9yZSB9IGZyb20gJ0Avc3RvcmVzL3dhbGxldCdcclxuaW1wb3J0IHsgZm9ybWF0UHJpY2UsIGZvcm1hdERhdGVUaW1lLCBMRURHRVJfTUVUQSB9IGZyb20gJ0AvdXRpbHMvZm9ybWF0J1xyXG5cclxuY29uc3Qgd2FsbGV0U3RvcmUgPSB1c2VXYWxsZXRTdG9yZSgpXHJcblxyXG5vbk1vdW50ZWQoKCkgPT4ge1xyXG4gIHdhbGxldFN0b3JlLnJlZnJlc2hBbGwoKVxyXG59KVxyXG5cclxuY29uc3Qgc3RhdHMgPSBjb21wdXRlZCgoKSA9PiBbXHJcbiAgeyBsYWJlbDogJ+S9memine+8iOenr+WIhu+8iScsIHZhbHVlOiB3YWxsZXRTdG9yZS5iYWxhbmNlLCBjbHM6ICdzdGF0LWluaycgfSxcclxuICB7IGxhYmVsOiAn5Ya757uT5Lit77yI56ev5YiG77yJJywgdmFsdWU6IHdhbGxldFN0b3JlLmZyb3plbiwgY2xzOiAnc3RhdC13YXJuJyB9LFxyXG4gIHsgbGFiZWw6ICflj6/nlKjvvIjnp6/liIbvvIknLCB2YWx1ZTogd2FsbGV0U3RvcmUuYXZhaWxhYmxlLCBjbHM6ICdzdGF0LW9rJyB9LFxyXG5dKVxyXG5cclxuZnVuY3Rpb24gYW1vdW50VGV4dChuOiBudW1iZXIpOiBzdHJpbmcge1xyXG4gIHJldHVybiBuID4gMCA/IGArJHtmb3JtYXRQcmljZShuKX1gIDogZm9ybWF0UHJpY2UobilcclxufVxyXG48L3NjcmlwdD5cclxuXHJcbjx0ZW1wbGF0ZT5cclxuICA8ZGl2PlxyXG4gICAgPGRpdiBjbGFzcz1cInBhZ2UtaGVhZFwiPlxyXG4gICAgICA8ZGl2PlxyXG4gICAgICAgIDxoMSBjbGFzcz1cInBhZ2UtdGl0bGVcIj7miJHnmoTpkrHljIU8L2gxPlxyXG4gICAgICAgIDxwIGNsYXNzPVwicGFnZS1zdWJcIj7lj6/nlKggPSDkvZnpop0g4oiSIOWGu+e7k++8m+WHuuS7t+WGu+e7k+OAgee7k+eul+aJo+asvi/pgIDov5jlnYflrp7ml7blj43mmKA8L3A+XHJcbiAgICAgIDwvZGl2PlxyXG4gICAgICA8YnV0dG9uIGNsYXNzPVwiYnRuIGJ0bi1naG9zdFwiIDpkaXNhYmxlZD1cIndhbGxldFN0b3JlLmxvYWRpbmdcIiBAY2xpY2s9XCJ3YWxsZXRTdG9yZS5yZWZyZXNoQWxsKClcIj5cclxuICAgICAgICB7eyB3YWxsZXRTdG9yZS5sb2FkaW5nID8gJ+WIt+aWsOS4reKApicgOiAn5Yi35pawJyB9fVxyXG4gICAgICA8L2J1dHRvbj5cclxuICAgIDwvZGl2PlxyXG5cclxuICAgIDxkaXYgY2xhc3M9XCJzdGF0LWdyaWRcIj5cclxuICAgICAgPGRpdiB2LWZvcj1cInMgaW4gc3RhdHNcIiA6a2V5PVwicy5sYWJlbFwiIGNsYXNzPVwiY2FyZCBzdGF0LWNhcmRcIj5cclxuICAgICAgICA8c3BhbiBjbGFzcz1cInN0YXQtbGFiZWxcIj57eyBzLmxhYmVsIH19PC9zcGFuPlxyXG4gICAgICAgIDxzcGFuIGNsYXNzPVwic3RhdC12YWx1ZSBwcmljZVwiIDpjbGFzcz1cInMuY2xzXCI+e3sgZm9ybWF0UHJpY2Uocy52YWx1ZSkgfX08L3NwYW4+XHJcbiAgICAgIDwvZGl2PlxyXG4gICAgPC9kaXY+XHJcblxyXG4gICAgPGRpdiBjbGFzcz1cImNhcmRcIj5cclxuICAgICAgPGgzIGNsYXNzPVwiY2FyZC10aXRsZVwiPui1hOmHkea1geawtCA8c3BhbiBjbGFzcz1cInRpdGxlLWNvdW50XCI+e3sgd2FsbGV0U3RvcmUubGVkZ2VyLmxlbmd0aCB9fSDmnaE8L3NwYW4+PC9oMz5cclxuXHJcbiAgICAgIDxkaXYgdi1pZj1cIndhbGxldFN0b3JlLmxlZGdlci5sZW5ndGggPT09IDAgJiYgIXdhbGxldFN0b3JlLmxvYWRpbmdcIiBjbGFzcz1cImVtcHR5XCI+XHJcbiAgICAgICAgPGRpdiBjbGFzcz1cImVtcHR5LWljb25cIj7wn6e+PC9kaXY+XHJcbiAgICAgICAgPHA+5pqC5peg5rWB5rC06K6w5b2VPC9wPlxyXG4gICAgICA8L2Rpdj5cclxuXHJcbiAgICAgIDxkaXYgdi1lbHNlIGNsYXNzPVwidGFibGUtd3JhcFwiPlxyXG4gICAgICAgIDx0YWJsZSBjbGFzcz1cInRhYmxlXCI+XHJcbiAgICAgICAgICA8dGhlYWQ+XHJcbiAgICAgICAgICAgIDx0cj5cclxuICAgICAgICAgICAgICA8dGg+5pe26Ze0PC90aD5cclxuICAgICAgICAgICAgICA8dGg+57G75Z6LPC90aD5cclxuICAgICAgICAgICAgICA8dGg+5ouN5Y2WPC90aD5cclxuICAgICAgICAgICAgICA8dGggY2xhc3M9XCJudW1cIj7ph5Hpop08L3RoPlxyXG4gICAgICAgICAgICAgIDx0aCBjbGFzcz1cIm51bVwiPuS9memineWQjjwvdGg+XHJcbiAgICAgICAgICAgICAgPHRoIGNsYXNzPVwibnVtXCI+5Ya757uT5ZCOPC90aD5cclxuICAgICAgICAgICAgICA8dGg+5aSH5rOoPC90aD5cclxuICAgICAgICAgICAgPC90cj5cclxuICAgICAgICAgIDwvdGhlYWQ+XHJcbiAgICAgICAgICA8dGJvZHk+XHJcbiAgICAgICAgICAgIDx0ciB2LWZvcj1cImUgaW4gd2FsbGV0U3RvcmUubGVkZ2VyXCIgOmtleT1cImUuaWRcIj5cclxuICAgICAgICAgICAgICA8dGQgY2xhc3M9XCJtb25vIGRpbVwiPnt7IGZvcm1hdERhdGVUaW1lKGUuY3JlYXRlZEF0KSB9fTwvdGQ+XHJcbiAgICAgICAgICAgICAgPHRkPlxyXG4gICAgICAgICAgICAgICAgPHNwYW4gY2xhc3M9XCJsZWRnZXItYmFkZ2VcIiA6Y2xhc3M9XCJMRURHRVJfTUVUQVtlLnR5cGVdPy5jbHNcIj57eyBMRURHRVJfTUVUQVtlLnR5cGVdPy5sYWJlbCA/PyBlLnR5cGUgfX08L3NwYW4+XHJcbiAgICAgICAgICAgICAgPC90ZD5cclxuICAgICAgICAgICAgICA8dGQgY2xhc3M9XCJtb25vXCI+e3sgZS5hdWN0aW9uSWQgIT0gbnVsbCA/IGAjJHtlLmF1Y3Rpb25JZH1gIDogJy0tJyB9fTwvdGQ+XHJcbiAgICAgICAgICAgICAgPHRkIGNsYXNzPVwibnVtIHByaWNlXCIgOmNsYXNzPVwiZS5hbW91bnQgPj0gMCA/ICdhbXQtaW4nIDogJ2FtdC1vdXQnXCI+e3sgYW1vdW50VGV4dChlLmFtb3VudCkgfX08L3RkPlxyXG4gICAgICAgICAgICAgIDx0ZCBjbGFzcz1cIm51bVwiPnt7IGZvcm1hdFByaWNlKGUuYmFsYW5jZUFmdGVyKSB9fTwvdGQ+XHJcbiAgICAgICAgICAgICAgPHRkIGNsYXNzPVwibnVtXCI+e3sgZm9ybWF0UHJpY2UoZS5mcm96ZW5BZnRlcikgfX08L3RkPlxyXG4gICAgICAgICAgICAgIDx0ZCBjbGFzcz1cImRpbSByZW1hcmtcIj57eyBlLnJlbWFyayA/PyAnJyB9fTwvdGQ+XHJcbiAgICAgICAgICAgIDwvdHI+XHJcbiAgICAgICAgICA8L3Rib2R5PlxyXG4gICAgICAgIDwvdGFibGU+XHJcbiAgICAgIDwvZGl2PlxyXG4gICAgPC9kaXY+XHJcbiAgPC9kaXY+XHJcbjwvdGVtcGxhdGU+XHJcblxyXG48c3R5bGUgc2NvcGVkPlxyXG4uc3RhdC1ncmlkIHtcclxuICBkaXNwbGF5OiBncmlkO1xyXG4gIGdyaWQtdGVtcGxhdGUtY29sdW1uczogcmVwZWF0KGF1dG8tZml0LCBtaW5tYXgoMjAwcHgsIDFmcikpO1xyXG4gIGdhcDogMTRweDtcclxuICBtYXJnaW4tYm90dG9tOiAxNnB4O1xyXG59XHJcblxyXG4uc3RhdC1jYXJkIHtcclxuICBkaXNwbGF5OiBmbGV4O1xyXG4gIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47XHJcbiAgZ2FwOiA2cHg7XHJcbn1cclxuXHJcbi5zdGF0LWxhYmVsIHtcclxuICBmb250LXNpemU6IDEyLjVweDtcclxuICBjb2xvcjogdmFyKC0tbXV0ZWQpO1xyXG59XHJcblxyXG4uc3RhdC12YWx1ZSB7XHJcbiAgZm9udC1zaXplOiAyOHB4O1xyXG59XHJcblxyXG4uc3RhdC1pbmsge1xyXG4gIGNvbG9yOiB2YXIoLS1pbmspO1xyXG59XHJcblxyXG4uc3RhdC13YXJuIHtcclxuICBjb2xvcjogdmFyKC0td2Fybik7XHJcbn1cclxuXHJcbi5zdGF0LW9rIHtcclxuICBjb2xvcjogdmFyKC0tc3VjY2Vzcyk7XHJcbn1cclxuXHJcbi50aXRsZS1jb3VudCB7XHJcbiAgZm9udC1zaXplOiAxMnB4O1xyXG4gIGNvbG9yOiB2YXIoLS1tdXRlZCk7XHJcbiAgZm9udC13ZWlnaHQ6IDUwMDtcclxufVxyXG5cclxuLmxlZGdlci1iYWRnZSB7XHJcbiAgZGlzcGxheTogaW5saW5lLWJsb2NrO1xyXG4gIGZvbnQtc2l6ZTogMTJweDtcclxuICBmb250LXdlaWdodDogNzAwO1xyXG4gIHBhZGRpbmc6IDJweCA5cHg7XHJcbiAgYm9yZGVyLXJhZGl1czogOTk5cHg7XHJcbn1cclxuXHJcbi5sZWRnZXItZnJlZXplIHtcclxuICBiYWNrZ3JvdW5kOiB2YXIoLS13YXJuLXNvZnQpO1xyXG4gIGNvbG9yOiB2YXIoLS13YXJuKTtcclxufVxyXG5cclxuLmxlZGdlci11bmZyZWV6ZSB7XHJcbiAgYmFja2dyb3VuZDogdmFyKC0taW5mby1zb2Z0KTtcclxuICBjb2xvcjogdmFyKC0taW5mbyk7XHJcbn1cclxuXHJcbi5sZWRnZXItcGF5IHtcclxuICBiYWNrZ3JvdW5kOiB2YXIoLS1kYW5nZXItc29mdCk7XHJcbiAgY29sb3I6IHZhcigtLWRhbmdlcik7XHJcbn1cclxuXHJcbi5sZWRnZXItcmVmdW5kLFxyXG4ubGVkZ2VyLWdyYW50IHtcclxuICBiYWNrZ3JvdW5kOiB2YXIoLS1zdWNjZXNzLXNvZnQpO1xyXG4gIGNvbG9yOiB2YXIoLS1zdWNjZXNzKTtcclxufVxyXG5cclxuLmFtdC1pbiB7XHJcbiAgY29sb3I6IHZhcigtLXN1Y2Nlc3MpO1xyXG59XHJcblxyXG4uYW10LW91dCB7XHJcbiAgY29sb3I6IHZhcigtLWRhbmdlcik7XHJcbn1cclxuXHJcbi5yZW1hcmsge1xyXG4gIGZvbnQtc2l6ZTogMTIuNXB4O1xyXG4gIG1heC13aWR0aDogMjYwcHg7XHJcbiAgb3ZlcmZsb3c6IGhpZGRlbjtcclxuICB0ZXh0LW92ZXJmbG93OiBlbGxpcHNpcztcclxuICB3aGl0ZS1zcGFjZTogbm93cmFwO1xyXG59XHJcbjwvc3R5bGU+XHJcbiJdLCJmaWxlIjoiRTov5YWo5qCI5rWL6K+VLeaLjeWNlumXtC9iaWQtYXJlbmEtZnVsbHN0YWNrL2Zyb250ZW5kL3NyYy92aWV3cy9XYWxsZXRWaWV3LnZ1ZSJ9

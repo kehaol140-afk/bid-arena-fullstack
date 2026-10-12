@@ -1,0 +1,43 @@
+{
+   "action": {
+      "default_popup": "index.html#/popup"
+   },
+   "background": {
+      "service_worker": "background.js"
+   },
+   "content_scripts": [ {
+      "exclude_matches": [ "*://*.kdocs.cn/*", "*://*.wps.cn/*" ],
+      "js": [ "lib/link.umd.min.js", "lib/tooltips.umd.min.js", "lib/ocr.umd.min.js" ],
+      "matches": [ "\u003Call_urls>" ],
+      "run_at": "document_end"
+   }, {
+      "all_frames": true,
+      "exclude_matches": [ "*://*.kdocs.cn/*", "*://*.wps.cn/*" ],
+      "js": [ "lib/webproxy.umd.min.js" ],
+      "matches": [ "\u003Call_urls>" ],
+      "run_at": "document_end"
+   }, {
+      "js": [ "lib/tooltips.umd.min.js", "lib/ocr.umd.min.js", "lib/introduce.umd.min.js" ],
+      "matches": [ "https://tool.kdocs.cn/*", "https://dev.ext.wps.cn/*" ],
+      "run_at": "document_end"
+   } ],
+   "description": "网页AI总结，快速划词解释、翻译，AI 写作与生成PPT，更多功能等您体验。",
+   "host_permissions": [ "\u003Call_urls>" ],
+   "icons": {
+      "128": "icons/wps_logo_128.png",
+      "16": "icons/wps_logo_16.png",
+      "48": "icons/wps_logo_48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAycjdqYbw66I7JK1CeT6re2d2Vx0casueYA/ootMKbLDycVpOaDE8w8b+DV3X87gCevEVxvleU8hWZx3g3bXK2t4R3ze7z7YcyobhGXRgfwZHAXxdp160YXJ1rqCHg/Cif5qh0qEo1LrpGsllGXITFzNLN7SlGb/bZZufELrJqMU0qL6xzzSmsWnuSNTjpYATRnXSLEoe89nj6EOlqqYZpNYjjbPhP6uxi0SuZbrTgwp1deZod0cXsjA7zX3s3awgClaLlZVJnUreM21lxfA77wS/bmAM5+OhWTSIG8TuNsKJZdUZ9ItFLhnx0rHwLCST9zmAxQ5ezJb+bb9ROXFi1QIDAQAB",
+   "manifest_version": 3,
+   "name": "WPS浏览器助手：网页AI总结，文档在线阅读编辑",
+   "optional_permissions": [ "history" ],
+   "options_page": "index.html#/options",
+   "permissions": [ "webRequest", "downloads", "storage", "tabs", "cookies", "nativeMessaging", "declarativeNetRequest", "gcm", "contextMenus", "sidePanel" ],
+   "side_panel": {
+      "default_path": "index.html#/sidepanel",
+      "default_title": "Click to open panel"
+   },
+   "update_url": "https://edge.microsoft.com/extensionwebstorebase/v1/crx",
+   "version": "3.0.2"
+}
