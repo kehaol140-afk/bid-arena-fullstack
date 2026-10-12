@@ -9,18 +9,21 @@ import org.noear.solon.annotation.Mapping;
 import org.noear.solon.annotation.Post;
 import org.noear.solon.core.handle.Context;
 
+@io.swagger.annotations.Api(tags = "AuthController")
 @Controller
 @Mapping("/api/v1/auth")
 public class AuthController {
     @Inject
     AuthService auth;
 
+    @io.swagger.annotations.ApiOperation(value = "Write AuthController")
     @Post
     @Mapping("/login")
-    public ApiResult<LoginResponse> login(LoginRequest req) {
+    public ApiResult<LoginResponse> login(@org.noear.solon.annotation.Body LoginRequest req) {
         return ApiResult.ok(auth.login(req));
     }
 
+    @io.swagger.annotations.ApiOperation(value = "Write AuthController")
     @Post
     @Mapping("/logout")
     public ApiResult<Void> logout(Context ctx) {

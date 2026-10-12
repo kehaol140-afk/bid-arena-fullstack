@@ -28,6 +28,9 @@ public class AgentTokenService {
         if (userId <= 0 || auctionId <= 0) {
             throw new BusinessException(ErrorCode.VALIDATION, "userId 与 auctionId 必填");
         }
+        if (rateLimitPerMin < 1 || rateLimitPerMin > 10000 || expiresAt <= System.currentTimeMillis()) {
+            throw new BusinessException(ErrorCode.VALIDATION, "Token 必须在未来过期，rateLimitPerMin 为 1~10000");
+        }
         if (scopes == null || scopes.isBlank()) {
             scopes = "auction:read,auction:bid";
         }
@@ -36,6 +39,8 @@ public class AgentTokenService {
                 throw new BusinessException(ErrorCode.VALIDATION, "scopes 仅支持 auction:read / auction:bid");
             }
         }
+        scopes = java.util.Arrays.stream(scopes.split(",")).map(String::trim).distinct()
+                .collect(java.util.stream.Collectors.joining(","));
         byte[] bytes = new byte[32];
         RANDOM.nextBytes(bytes);
         String plain = "bat_" + SessionRepository.hex(bytes);

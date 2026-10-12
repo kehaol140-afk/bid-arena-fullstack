@@ -84,6 +84,10 @@ public class AuctionRepository {
         return sql.sql("UPDATE auctions SET status = 'FINISHED', settle_reason = ?, updated_at = ? WHERE id = ?", reason, now, id).update();
     }
 
+    public int markCancelled(long id, long now) throws SQLException {
+        return sql.sql("UPDATE auctions SET status='CANCELLED', settle_reason='CANCELLED', updated_at=? WHERE id=?", now, id).update();
+    }
+
     /** 事务内递增事件序号（调用方必须已持有该拍卖行锁） */
     public long nextSeq(long auctionId, long now) throws SQLException {
         sql.sql("UPDATE auctions SET seq = seq + 1, updated_at = ? WHERE id = ?", now, auctionId).update();

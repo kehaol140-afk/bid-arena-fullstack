@@ -15,6 +15,7 @@ public enum ErrorCode {
     IDEMPOTENT_CONFLICT(2005, 409, "相同 requestId 已存在但请求内容不同"),
     EXTEND_LIMIT(2006, 200, "延时次数已达上限（出价仍有效）"),
     AUCTION_STATE_INVALID(2007, 409, "拍卖状态不允许该操作"),
+    BID_RETRYABLE(2008, 409, "事务竞争，请使用相同 requestId 重试"),
     AGENT_TOKEN_INVALID(3001, 401, "Agent Token 无效、过期或已吊销"),
     AGENT_SCOPE_DENIED(3002, 403, "Agent Token 无权访问该拍卖"),
     AGENT_PERMISSION_DENIED(3003, 403, "Agent Token 缺少所需权限"),

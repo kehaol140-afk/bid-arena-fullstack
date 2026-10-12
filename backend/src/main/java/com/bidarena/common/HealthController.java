@@ -7,8 +7,10 @@ import org.noear.solon.annotation.Mapping;
 
 import java.util.Map;
 
+@io.swagger.annotations.Api(tags = "HealthController")
 @Controller
 public class HealthController {
+    @io.swagger.annotations.ApiOperation(value = "Read HealthController")
     @Get
     @Mapping("/api/v1/health")
     public ApiResult<Map<String, Object>> health() {

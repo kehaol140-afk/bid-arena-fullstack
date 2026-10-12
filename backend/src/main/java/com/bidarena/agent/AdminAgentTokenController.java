@@ -19,6 +19,7 @@ import java.util.Map;
  * 管理员签发/撤销 Agent Token。
  * 明文 token 只在创建响应中出现一次；列表接口只返回摘要前缀。
  */
+@io.swagger.annotations.Api(tags = "AdminAgentTokenController")
 @Controller
 @Mapping("/api/v1/admin/agent-tokens")
 public class AdminAgentTokenController {
@@ -27,11 +28,15 @@ public class AdminAgentTokenController {
     @Inject
     AgentTokenRepository repo;
 
+    @io.swagger.annotations.ApiOperation(value = "Write AdminAgentTokenController")
     @Post
     @Mapping
-    public ApiResult<Map<String, Object>> create(AgentTokenCreateRequest req) {
+    public ApiResult<Map<String, Object>> create(@org.noear.solon.annotation.Body AgentTokenCreateRequest req) {
         if (req.getUserId() == null || req.getAuctionId() == null) {
             throw new BusinessException(ErrorCode.VALIDATION, "userId 与 auctionId 必填");
+        }
+        if (req.getExpiresInSeconds() != null && (req.getExpiresInSeconds() <= 0 || req.getExpiresInSeconds() > 86400L)) {
+            throw new BusinessException(ErrorCode.VALIDATION, "expiresInSeconds 为 1~86400");
         }
         long expiresAt = System.currentTimeMillis()
                 + (req.getExpiresInSeconds() == null ? 3600L : req.getExpiresInSeconds()) * 1000L;
@@ -48,6 +53,7 @@ public class AdminAgentTokenController {
                 "rateLimitPerMin", issued.rateLimitPerMin()));
     }
 
+    @io.swagger.annotations.ApiOperation(value = "Read AdminAgentTokenController")
     @Get
     @Mapping
     public ApiResult<List<Map<String, Object>>> list(Long userId) throws SQLException {
@@ -68,6 +74,7 @@ public class AdminAgentTokenController {
         return ApiResult.ok(out);
     }
 
+    @io.swagger.annotations.ApiOperation(value = "Write AdminAgentTokenController")
     @Post
     @Mapping("/{id}/revoke")
     public ApiResult<Void> revoke(long id) {

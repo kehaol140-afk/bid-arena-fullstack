@@ -14,6 +14,7 @@ import org.noear.solon.core.handle.Context;
 import java.sql.SQLException;
 import java.util.List;
 
+@io.swagger.annotations.Api(tags = "WalletController")
 @Controller
 @Mapping("/api/v1/wallets")
 public class WalletController {
@@ -23,6 +24,7 @@ public class WalletController {
     SqlUtils sql;
 
     /** 只允许查询自己的钱包（普通用户禁止查看他人隐私） */
+    @io.swagger.annotations.ApiOperation(value = "Read WalletController")
     @Get
     @Mapping("/me")
     public ApiResult<WalletVO> me(Context ctx) {
@@ -39,6 +41,7 @@ public class WalletController {
     }
 
     /** 本人资金流水（最新优先） */
+    @io.swagger.annotations.ApiOperation(value = "Read WalletController")
     @Get
     @Mapping("/me/ledger")
     public ApiResult<List<LedgerVO>> ledger(Context ctx) {

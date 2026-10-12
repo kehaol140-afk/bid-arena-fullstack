@@ -3,6 +3,7 @@ package com.bidarena.agent;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.data.sql.SqlUtils;
+import org.noear.solon.data.annotation.Tran;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -131,7 +132,8 @@ public class AgentTokenRepository {
         return sql.sql("""
                         SELECT id, token_hash, token_prefix, user_id, auction_id, scopes, expires_at, revoked,
                                rate_limit_per_min, request_count, window_started_at, created_at
-                        FROM agent_tokens WHERE token_hash = ?
+                        FROM agent_tokens WHERE token_hash = ? AND EXISTS
+                        (SELECT 1 FROM users u WHERE u.id=agent_tokens.user_id AND u.status='ACTIVE')
                         """, hash).queryRow(AgentTokenRow.class);
     }
 
@@ -169,6 +171,7 @@ public class AgentTokenRepository {
     }
 
     /** 固定窗口频率计数：窗口过期则重置；返回当前窗口计数（原子自增后） */
+    @Tran
     public int countRequest(long tokenId, long windowMs, long now) throws SQLException {
         sql.sql("""
                         UPDATE agent_tokens

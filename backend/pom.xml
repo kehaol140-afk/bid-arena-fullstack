@@ -17,6 +17,9 @@
     <flyway.version>10.20.1</flyway.version>
     <hikari.version>4.0.3</hikari.version>
     <junit.version>5.10.2</junit.version>
+    <bid.test.db.url>jdbc:mysql://localhost:3306/bid_arena_test?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC</bid.test.db.url>
+    <bid.test.db.user>root</bid.test.db.user>
+    <bid.test.db.password>123456</bid.test.db.password>
   </properties>
 
   <dependencies>
@@ -121,10 +124,11 @@
         <version>3.2.5</version>
         <configuration>
           <!-- 集成测试使用独立的本机测试库，不触碰开发库 bid_arena -->
+          <runOrder>alphabetical</runOrder>
           <environmentVariables>
-            <BID_DB_URL>jdbc:mysql://localhost:3306/bid_arena_test?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC</BID_DB_URL>
-            <BID_DB_USER>root</BID_DB_USER>
-            <BID_DB_PASSWORD>123456</BID_DB_PASSWORD>
+            <BID_DB_URL>${bid.test.db.url}</BID_DB_URL>
+            <BID_DB_USER>${bid.test.db.user}</BID_DB_USER>
+            <BID_DB_PASSWORD>${bid.test.db.password}</BID_DB_PASSWORD>
           </environmentVariables>
           <includes>
             <include>**/*IT.java</include>
@@ -149,4 +153,11 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>external-test-db-password</id>
+      <activation><property><name>env.BID_TEST_DB_PASSWORD</name></property></activation>
+      <properties><bid.test.db.password>${env.BID_TEST_DB_PASSWORD}</bid.test.db.password></properties>
+    </profile>
+  </profiles>
 </project>

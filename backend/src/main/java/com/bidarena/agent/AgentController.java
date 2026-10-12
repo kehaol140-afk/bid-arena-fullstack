@@ -21,6 +21,7 @@ import java.util.Map;
  * 竞拍 Agent 公开 API（独立于用户会话，最小权限）。
  * 复用与真人相同的业务服务（AuctionService / BidService），鉴权走 Agent Token。
  */
+@io.swagger.annotations.Api(tags = "AgentController")
 @Controller
 @Mapping("/api/v1/agent")
 public class AgentController {
@@ -31,6 +32,7 @@ public class AgentController {
     @Inject
     AuctionEventWriter events;
 
+    @io.swagger.annotations.ApiOperation(value = "Read AgentController")
     @Get
     @Mapping("/me")
     public ApiResult<Map<String, Object>> me(Context ctx) {
@@ -44,6 +46,7 @@ public class AgentController {
                 "rateLimitPerMin", t.getRateLimitPerMin()));
     }
 
+    @io.swagger.annotations.ApiOperation(value = "Read AgentController")
     @Get
     @Mapping("/auctions/{id}")
     public ApiResult<AuctionDetailVO> auction(long id, Context ctx) {
@@ -51,9 +54,23 @@ public class AgentController {
         return ApiResult.ok(auctions.detail(id));
     }
 
+    @Inject com.bidarena.wallet.WalletRepository wallets;
+
+    @io.swagger.annotations.ApiOperation(value = "Read AgentController")
+    @Get
+    @Mapping("/wallet")
+    public ApiResult<com.bidarena.wallet.WalletVO> wallet(Context ctx) throws java.sql.SQLException {
+        var token=AgentAuthInterceptor.currentToken(ctx);
+        AgentAuthInterceptor.assertScope(ctx, token.getAuctionId(), "auction:read");
+        var wallet=wallets.findByUserId(token.getUserId());
+        if(wallet==null) throw new com.bidarena.common.BusinessException(com.bidarena.common.ErrorCode.NOT_FOUND);
+        return ApiResult.ok(new com.bidarena.wallet.WalletVO(token.getUserId(),wallet.getBalance(),wallet.getFrozen()));
+    }
+
     @Inject
     com.bidarena.bid.BidRepository bidRepo;
 
+    @io.swagger.annotations.ApiOperation(value = "Read AgentController")
     @Get
     @Mapping("/auctions/{id}/bids")
     public ApiResult<Object> bids(long id, Context ctx) throws java.sql.SQLException {
@@ -61,6 +78,7 @@ public class AgentController {
         return ApiResult.ok(bidRepo.listByAuction(id, 200));
     }
 
+    @io.swagger.annotations.ApiOperation(value = "Write AgentController")
     @Post
     @Mapping("/auctions/{id}/join")
     public ApiResult<Void> join(long id, Context ctx) {
@@ -73,9 +91,10 @@ public class AgentController {
         return ApiResult.ok();
     }
 
+    @io.swagger.annotations.ApiOperation(value = "Write AgentController")
     @Post
     @Mapping("/auctions/{id}/bids")
-    public ApiResult<BidVO> bid(long id, BidRequest req, Context ctx) {
+    public ApiResult<BidVO> bid(long id, @org.noear.solon.annotation.Body BidRequest req, Context ctx) {
         AgentAuthInterceptor.assertScope(ctx, id, "auction:bid");
         long receivedAt = System.currentTimeMillis();
         long agentUserId = ctx.attr("agentUserId");

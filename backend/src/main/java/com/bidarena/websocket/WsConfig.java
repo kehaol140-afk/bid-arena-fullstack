@@ -38,6 +38,7 @@ public class WsConfig {
         private WsSessionRegistry registry;
         private SessionRepository sessions;
         private AuctionRepository auctions;
+        private com.bidarena.auction.AuctionService auctionService;
         private WsBroadcaster broadcaster;
         private EventFactory factory;
 
@@ -49,6 +50,7 @@ public class WsConfig {
             registry = Solon.context().getBean(WsSessionRegistry.class);
             sessions = Solon.context().getBean(SessionRepository.class);
             auctions = Solon.context().getBean(AuctionRepository.class);
+            auctionService = Solon.context().getBean(com.bidarena.auction.AuctionService.class);
             broadcaster = Solon.context().getBean(WsBroadcaster.class);
             factory = Solon.context().getBean(EventFactory.class);
         }
@@ -70,7 +72,9 @@ public class WsConfig {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-            if (userId == null) {
+            boolean exists;
+            try {exists=auctions.findById(auctionId)!=null;}catch(SQLException e){throw new RuntimeException(e);}
+            if (userId == null || !exists) {
                 broadcaster.sendRaw(socket, factory.envelope("CONNECTION_STATE", auctionId, 0,
                         n -> n.set("state", "rejected").set("reason", "invalid token")));
                 socket.close();
@@ -78,6 +82,7 @@ public class WsConfig {
             }
             socket.attr("auctionId", auctionId);
             socket.attr("userId", userId);
+            socket.attr("tokenHash",SessionRepository.sha256(token));
             registry.join(auctionId, new WsSessionRegistry.Client(socket, userId));
 
             broadcaster.sendRaw(socket, factory.envelope("CONNECTION_STATE", auctionId, 0,
@@ -92,6 +97,13 @@ public class WsConfig {
             if (auctionId == null) {
                 return;
             }
+            try {
+                if(sessions.findValidUserIdByHash(socket.attr("tokenHash"))==null) {
+                    broadcaster.sendRaw(socket,factory.envelope("CONNECTION_STATE",auctionId,0,
+                            n->n.set("state","rejected").set("reason","expired or revoked session")));
+                    socket.close();return;
+                }
+            } catch(SQLException e){socket.close();return;}
             // 协议：SYNC:<lastSeq> —— 补发该 seq 之后的所有持久化事件
             if (message != null && message.startsWith("SYNC:")) {
                 long lastSeq = parseLong(message.substring(5)) == null ? 0 : parseLong(message.substring(5));
@@ -126,19 +138,19 @@ public class WsConfig {
 
         private void sendSnapshot(WebSocket socket, long auctionId) {
             try {
-                Auction a = auctions.findById(auctionId);
+                var a = auctionService.detail(auctionId);
                 if (a == null) {
                     broadcaster.sendRaw(socket, factory.envelope("AUCTION_SNAPSHOT", auctionId, 0,
                             n -> n.set("state", "not_found")));
                     return;
                 }
-                List<AuctionRepository.ParticipantRow> parts = auctions.listParticipants(auctionId);
+                var parts = a.getParticipants();
                 org.noear.snack4.ONode participants = new org.noear.snack4.ONode().asArray();
-                for (AuctionRepository.ParticipantRow p : parts) {
+                for (var p : parts) {
                     org.noear.snack4.ONode po = new org.noear.snack4.ONode().asObject();
                     po.set("userId", p.getUserId());
                     po.set("displayName", p.getDisplayName());
-                    po.set("type", p.getParticipantType());
+                    po.set("type", p.getType());
                     participants.add(po);
                 }
                 String payload = factory.envelope("AUCTION_SNAPSHOT", auctionId, a.getSeq(), n -> {
@@ -148,6 +160,8 @@ public class WsConfig {
                     n.set("minIncrement", a.getMinIncrement());
                     n.set("currentPrice", a.getCurrentPrice());
                     n.set("currentLeaderId", a.getCurrentLeaderId());
+                    n.set("currentLeaderName",a.getCurrentLeaderName());
+                    n.set("result",org.noear.snack4.ONode.ofBean(a.getResult()));
                     n.set("startTime", a.getStartedAt());
                     n.set("endTime", a.getEndTime());
                     n.set("extendCount", a.getExtendCount());
@@ -156,7 +170,7 @@ public class WsConfig {
                     n.set("participants", participants);
                 });
                 broadcaster.sendRaw(socket, payload);
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 log.warn("snapshot failed: {}", e.getMessage());
             }
         }

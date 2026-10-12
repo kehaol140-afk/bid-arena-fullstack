@@ -22,7 +22,7 @@ import java.util.List;
  * phase1 tryClaim（独立小事务）：原子 CAS RUNNING→SETTLING（条件 end_time<=now）。
  *   - 抢到 → 本实例获得结算权；affected=0 → 已结束跳过 / 滞留 SETTLING（崩溃残留）进入恢复。
  * phase2 finalize（独立事务）：
- *   - 锁拍卖 → 锁持仓行（userId 升序）→ 锁钱包 → 赢家冻结转扣款 → 其余释放
+ *   - 锁拍卖 → 读取该拍卖持仓（userId 升序）→ 按升序锁钱包 → 写持仓、扣款或释放
  *   - INSERT auction_results（主键 auction_id，数据库级唯一保护；并发双实例必有一方回滚）
  *   - 状态置 FINISHED + 事件 AUCTION_FINISHED
  *
@@ -99,7 +99,7 @@ public class SettlementService {
 
     /**
      * 资金结算：赢家冻结转扣款（balance-=hold, frozen-=hold），其余参与者全部释放。
-     * 锁顺序与 BidService 一致：auction → wallet_holds(userId asc) → wallets。
+     * 拍卖锁已排除该场的并发持仓写入；统一锁序为 auction → wallets(userId asc) → hold 写入。
      */
     private void settleFunds(Auction a, Long winnerId, long now) throws SQLException {
         List<WalletRepository.HoldRow> holds = wallets.lockHoldsByAuction(a.getId());

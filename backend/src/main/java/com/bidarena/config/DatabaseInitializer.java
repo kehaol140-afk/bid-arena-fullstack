@@ -33,8 +33,18 @@ public final class DatabaseInitializer {
         log.info("flyway migrate done");
 
         SqlUtils sql = SqlUtils.of(ds);
-        try {
-            seed(sql);
+        // Same-DB startup workers serialize seed creation using a connection-owned MySQL lock.
+        try (var lock = ds.getConnection()) {
+            try (var statement = lock.createStatement(); var rs = statement.executeQuery(
+                    "SELECT GET_LOCK(CONCAT('bid-arena-seed:',LEFT(SHA2(DATABASE(),256),32)),30)")) {
+                if (!rs.next() || rs.getInt(1) != 1) throw new SQLException("seed lock timeout");
+            }
+            try { seed(sql); }
+            finally {
+                try (var statement = lock.createStatement()) {
+                    statement.execute("SELECT RELEASE_LOCK(CONCAT('bid-arena-seed:',LEFT(SHA2(DATABASE(),256),32)))");
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException("seed failed", e);
         }
@@ -50,6 +60,7 @@ public final class DatabaseInitializer {
         long adminId = ensureUser(sql, "admin@example.com", adminHash, "管理员", "ADMIN", now);
         long bidderA = ensureUser(sql, "bidder_a@example.com", userHash, "竞拍者A", "USER", now);
         long bidderB = ensureUser(sql, "bidder_b@example.com", userHash, "竞拍者B", "USER", now);
+        ensureUser(sql, "auction_agent@example.com", userHash, "竞拍Agent", "AGENT", now);
 
         // 20 个模拟竞拍账号 bot_01 .. bot_20（与 simulator 脚本约定一致）
         for (int i = 1; i <= 20; i++) {
@@ -57,7 +68,7 @@ public final class DatabaseInitializer {
         }
 
         // 幂等：只在没有任何 DRAFT 演示拍品时创建一个（title 固定，存在即跳过）
-        Number draftCount = sql.sql("SELECT COUNT(*) FROM auctions WHERE title = ?", "演示拍品·经典机械腕表（DRAFT）")
+        Number draftCount = sql.sql("SELECT COUNT(*) FROM auctions WHERE title = ? AND status='DRAFT'", "演示拍品·经典机械腕表（DRAFT）")
                 .queryValue();
         if (draftCount == null || draftCount.longValue() == 0) {
             sql.sql("""
@@ -77,6 +88,9 @@ public final class DatabaseInitializer {
             throws SQLException {
         Number existing = sql.sql("SELECT id FROM users WHERE email = ?", email).queryValue();
         if (existing != null) {
+            // Recover a prior crash between user creation and wallet creation without resetting balances.
+            sql.sql("INSERT IGNORE INTO wallets(user_id,balance,frozen,version,updated_at) VALUES (?,?,0,0,?)",
+                    existing.longValue(), INITIAL_BALANCE, now).update();
             return existing.longValue();
         }
         Number id = sql.sql("""

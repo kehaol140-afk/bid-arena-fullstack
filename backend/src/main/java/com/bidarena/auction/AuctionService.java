@@ -96,10 +96,11 @@ public class AuctionService {
 
             // 结果表唯一键 auction_id 保护：重复取消不会产生第二条结果
             insertResultIgnoreDuplicate(auctionId, null, 0L, "CANCELLED", now);
-            auctions.markFinished(auctionId, "CANCELLED", now);
+            auctions.markCancelled(auctionId, now);
             return events.append(auctionId, "AUCTION_FINISHED", n -> {
                 n.set("reason", "CANCELLED");
                 n.set("winnerId", (Object) null);
+                n.set("finalPrice", 0L);
             });
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -163,13 +164,14 @@ public class AuctionService {
             }
             return events.append(auctionId, "PARTICIPANT_JOINED", n -> {
                 n.set("userId", userId);
-                n.set("type", agent ? "AGENT" : "HUMAN");
+                n.set("participantType", agent ? "AGENT" : "HUMAN");
             });
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Tran(readOnly = true)
     public AuctionDetailVO detail(long auctionId) {
         try {
             Auction a = auctions.findById(auctionId);
@@ -182,6 +184,7 @@ public class AuctionService {
         }
     }
 
+    @Tran(readOnly = true)
     public List<AuctionDetailVO> list() {
         try {
             List<Auction> rows = auctions.listAll();
@@ -196,11 +199,7 @@ public class AuctionService {
     }
 
     public AuctionDetailVO toSummary(Auction a) throws SQLException {
-        AuctionDetailVO vo = base(a);
-        Number cnt = sql.sql("SELECT COUNT(*) FROM auction_participants WHERE auction_id = ?", a.getId())
-                .queryValue();
-        vo.setParticipantCount(cnt == null ? 0 : cnt.intValue());
-        return vo;
+        return toDetail(a);
     }
 
     public AuctionDetailVO toDetail(Auction a) throws SQLException {

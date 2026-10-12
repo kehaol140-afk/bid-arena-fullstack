@@ -25,6 +25,15 @@ public class WalletRepository {
                 .queryRow(Wallet.class);
     }
 
+    public java.util.Map<Long, Wallet> lockUsers(long bidderId, Long oldLeaderId) throws SQLException {
+        java.util.SortedSet<Long> ids = new java.util.TreeSet<>();
+        ids.add(bidderId);
+        if (oldLeaderId != null) ids.add(oldLeaderId);
+        java.util.Map<Long, Wallet> out = new java.util.LinkedHashMap<>();
+        for (long id : ids) out.put(id, lockByUserId(id));
+        return out;
+    }
+
     public int updateFrozenAndBalance(long userId, long balance, long frozen, long now) throws SQLException {
         return sql.sql("""
                         UPDATE wallets SET balance = ?, frozen = ?, version = version + 1, updated_at = ?
@@ -39,12 +48,12 @@ public class WalletRepository {
         return v == null ? 0L : v.longValue();
     }
 
-    /** 事务内锁定该场全部持仓行（按 user_id 升序，保证加锁顺序一致）；空结果归一为空列表 */
+    /** Caller owns the auction lock; read stable holds and acquire wallets before hold writes. */
     public java.util.List<HoldRow> lockHoldsByAuction(long auctionId) throws SQLException {
         java.util.List<HoldRow> rows = sql.sql("""
                         SELECT h.user_id AS user_id, h.amount AS amount
                         FROM wallet_holds h WHERE h.auction_id = ? AND h.amount > 0
-                        ORDER BY h.user_id ASC FOR UPDATE
+                        ORDER BY h.user_id ASC
                         """, auctionId).queryRowList(HoldRow.class);
         return rows == null ? java.util.List.of() : rows;
     }

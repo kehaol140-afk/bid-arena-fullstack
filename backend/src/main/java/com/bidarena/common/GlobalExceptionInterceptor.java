@@ -29,6 +29,14 @@ public class GlobalExceptionInterceptor implements RouterInterceptor {
         } catch (BusinessException e) {
             ctx.status(e.getErrorCode().getHttpStatus());
             ctx.render(ApiResult.error(e.getErrorCode(), e.getDetail()));
+        } catch (org.noear.solon.core.exception.StatusException e) {
+            if(e.getCode()==400) {
+                ctx.status(400);
+                ctx.render(ApiResult.error(ErrorCode.VALIDATION, "请求参数或 JSON 格式不合法"));
+            } else {
+                ctx.status(e.getCode());
+                ctx.render(ApiResult.error(ErrorCode.INTERNAL, null));
+            }
         } catch (IllegalArgumentException e) {
             ctx.status(400);
             ctx.render(ApiResult.error(ErrorCode.VALIDATION, e.getMessage()));

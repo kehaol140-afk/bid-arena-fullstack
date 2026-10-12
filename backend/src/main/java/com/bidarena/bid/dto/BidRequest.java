@@ -2,7 +2,8 @@ package com.bidarena.bid.dto;
 
 public class BidRequest {
     private String requestId;
-    private Long amount;
+    @io.swagger.annotations.ApiModelProperty(dataType="long", required=true, example="110")
+    private java.math.BigDecimal amount;
 
     public String getRequestId() {
         return requestId;
@@ -13,10 +14,12 @@ public class BidRequest {
     }
 
     public Long getAmount() {
-        return amount;
+        if(amount==null) throw new com.bidarena.common.BusinessException(com.bidarena.common.ErrorCode.VALIDATION,"amount 必填");
+        try { return amount.longValueExact(); }
+        catch(ArithmeticException e) {throw new com.bidarena.common.BusinessException(com.bidarena.common.ErrorCode.VALIDATION,"amount 必须是可表示的整数积分");}
     }
 
-    public void setAmount(Long amount) {
+    public void setAmount(java.math.BigDecimal amount) {
         this.amount = amount;
     }
 }

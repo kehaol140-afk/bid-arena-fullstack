@@ -12,12 +12,14 @@ import org.noear.solon.core.handle.Context;
 
 import java.sql.SQLException;
 
+@io.swagger.annotations.Api(tags = "UserController")
 @Controller
 @Mapping("/api/v1/users")
 public class UserController {
     @Inject
     UserRepository users;
 
+    @io.swagger.annotations.ApiOperation(value = "Read UserController")
     @Get
     @Mapping("/me")
     public ApiResult<UserVO> me(Context ctx) {

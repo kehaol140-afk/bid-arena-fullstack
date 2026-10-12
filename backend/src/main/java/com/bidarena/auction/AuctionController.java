@@ -12,6 +12,7 @@ import org.noear.solon.core.handle.Context;
 
 import java.util.List;
 
+@io.swagger.annotations.Api(tags = "AuctionController")
 @Controller
 @Mapping("/api/v1/auctions")
 public class AuctionController {
@@ -20,18 +21,21 @@ public class AuctionController {
     @Inject
     AuctionEventWriter events;
 
+    @io.swagger.annotations.ApiOperation(value = "Read AuctionController")
     @Get
     @Mapping
     public ApiResult<List<AuctionDetailVO>> list() {
         return ApiResult.ok(auctions.list());
     }
 
+    @io.swagger.annotations.ApiOperation(value = "Read AuctionController")
     @Get
     @Mapping("/{id}")
     public ApiResult<AuctionDetailVO> detail(long id) {
         return ApiResult.ok(auctions.detail(id));
     }
 
+    @io.swagger.annotations.ApiOperation(value = "Write AuctionController")
     @Post
     @Mapping("/{id}/join")
     public ApiResult<Void> join(long id, Context ctx) {
@@ -45,6 +49,7 @@ public class AuctionController {
     }
 
     /** 事件回放接口：断线/缺号客户端按 seq 拉取（HTTP 兜底，WebSocket 之外的恢复途径） */
+    @io.swagger.annotations.ApiOperation(value = "Read AuctionController")
     @Get
     @Mapping("/{id}/events")
     public ApiResult<List<AuctionEventWriter.EventRow>> events(long id, Long since) throws java.sql.SQLException {

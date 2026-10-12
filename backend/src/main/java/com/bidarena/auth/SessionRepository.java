@@ -39,8 +39,12 @@ public class SessionRepository {
         if (token == null || token.isBlank()) {
             return null;
         }
-        Number userId = sql.sql("SELECT user_id FROM sessions WHERE token_hash = ? AND expires_at > ?",
-                sha256(token), System.currentTimeMillis()).queryValue();
+        return findValidUserIdByHash(sha256(token));
+    }
+
+    public Long findValidUserIdByHash(String hash) throws SQLException {
+        Number userId = sql.sql("SELECT s.user_id FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>? AND u.status='ACTIVE'",
+                hash, System.currentTimeMillis()).queryValue();
         return userId == null ? null : userId.longValue();
     }
 

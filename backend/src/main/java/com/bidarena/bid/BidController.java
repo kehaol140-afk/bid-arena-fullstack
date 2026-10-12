@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@io.swagger.annotations.Api(tags = "BidController")
 @Controller
 @Mapping("/api/v1/auctions/{id}/bids")
 public class BidController {
@@ -31,9 +32,10 @@ public class BidController {
      * 出价：receivedAt 在进入业务逻辑前捕获（服务端接收时间），
      * 截止校验在拍卖行锁内以 receivedAt 严格早于 end_time 判定（见 BidService）。
      */
+    @io.swagger.annotations.ApiOperation(value = "Write BidController")
     @Post
     @Mapping
-    public ApiResult<BidVO> place(long id, BidRequest req, Context ctx) {
+    public ApiResult<BidVO> place(long id, @org.noear.solon.annotation.Body BidRequest req, Context ctx) {
         long receivedAt = System.currentTimeMillis();
         long uid = AuthInterceptor.currentUserId(ctx);
         try {
@@ -54,6 +56,7 @@ public class BidController {
         }
     }
 
+    @io.swagger.annotations.ApiOperation(value = "Read BidController")
     @Get
     @Mapping
     public ApiResult<List<BidVO>> list(long id) throws SQLException {

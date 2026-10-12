@@ -16,6 +16,7 @@ import java.util.Map;
  * 管理员接口（AdminInterceptor 校验 ADMIN 角色）。
  * 广播约定：@Tran 服务方法返回即已提交，随后广播；广播失败不影响事务。
  */
+@io.swagger.annotations.Api(tags = "AdminAuctionController")
 @Controller
 @Mapping("/api/v1/admin/auctions")
 public class AdminAuctionController {
@@ -24,14 +25,16 @@ public class AdminAuctionController {
     @Inject
     AuctionEventWriter events;
 
+    @io.swagger.annotations.ApiOperation(value = "Write AdminAuctionController")
     @Post
     @Mapping
-    public ApiResult<Map<String, Long>> create(CreateAuctionRequest req, Context ctx) {
+    public ApiResult<Map<String, Long>> create(@org.noear.solon.annotation.Body CreateAuctionRequest req, Context ctx) {
         long adminUid = AuthInterceptor.currentUserId(ctx);
         long id = auctions.create(adminUid, req);
         return ApiResult.ok(Map.of("auctionId", id));
     }
 
+    @io.swagger.annotations.ApiOperation(value = "Write AdminAuctionController")
     @Post
     @Mapping("/{id}/start")
     public ApiResult<AuctionDetailVO> start(long id) {
@@ -40,6 +43,7 @@ public class AdminAuctionController {
         return ApiResult.ok(auctions.detail(id));
     }
 
+    @io.swagger.annotations.ApiOperation(value = "Write AdminAuctionController")
     @Post
     @Mapping("/{id}/cancel")
     public ApiResult<AuctionDetailVO> cancel(long id) {
