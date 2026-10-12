@@ -40,6 +40,11 @@ function makeCard(over: Partial<Auction> = {}) {
 }
 
 describe('AuctionCard', () => {
+  it('missing summary display names use the authoritative user ID instead of undefined', () => {
+    const wrapper = makeCard({ currentLeaderName: undefined as unknown as null })
+    expect(wrapper.text()).not.toContain('undefined')
+    expect(wrapper.text()).toContain('用户 #3')
+  })
   it('RUNNING：显示竞拍中徽章、当前价、领先者、参与人数与倒计时', () => {
     const wrapper = makeCard()
     const text = wrapper.text()

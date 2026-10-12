@@ -23,11 +23,11 @@ try {
     if(-not $vup){ throw "vite not up" }
 
     # 3) prepare auction (admin, 75s so settlement happens while browser watches)
-    $login = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8090/api/v1/auth/login" -ContentType "application/json" -Body '{"email":"admin@example.com","password":"Admin123456!"}'
+    $login = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8090/api/v1/auth/login" -ContentType "application/json; charset=utf-8" -Body '{"email":"admin@example.com","password":"Admin123456!"}'
     $H = @{Authorization="Bearer $($login.data.token)"}
-    $create = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8090/api/v1/admin/auctions" -Headers $H -ContentType "application/json" -Body '{"title":"E2E-BROWSER-AUCTION","durationSeconds":75,"startPrice":100,"minIncrement":10}'
+    $create = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8090/api/v1/admin/auctions" -Headers $H -ContentType "application/json; charset=utf-8" -Body '{"title":"E2E-BROWSER-AUCTION","durationSeconds":75,"startPrice":100,"minIncrement":10}'
     $aid = $create.data.auctionId
-    Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8090/api/v1/admin/auctions/$aid/start" -Headers $H -ContentType "application/json" -Body "{}" | Out-Null
+    Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8090/api/v1/admin/auctions/$aid/start" -Headers $H -ContentType "application/json; charset=utf-8" -Body "{}" | Out-Null
     Write-Host "[browser-e2e] auction=$aid started (75s)"
 
     # 4) run CDP browser script

@@ -263,7 +263,7 @@ $frontendLog = ""
 if (-not $frontendReused) {
   Write-Host "[start-local] (5/6) starting frontend (vite dev on $FrontendPort)..." -ForegroundColor Cyan
   $frontendLog = Join-Path $logDir "frontend-$stamp.log"
-  $cmdFe = "cmd.exe /c cd /d `"$frontendDir`" && npm run dev > `"$frontendLog`" 2>&1"
+  $cmdFe = "cmd.exe /c cd /d `"$frontendDir`" && set `"BID_API_BASE=http://127.0.0.1:$HttpPort`" && set `"BID_WS_BASE=ws://127.0.0.1:$WsPort`" && npm run dev > `"$frontendLog`" 2>&1"
   $rf = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $cmdFe; CurrentDirectory = $frontendDir }
   if ($rf.ReturnValue -ne 0) { Fail "WMI process create failed for frontend rc=$($rf.ReturnValue)." }
   $frontendCmdPid = $rf.ProcessId
@@ -318,7 +318,7 @@ Write-Host "  WebSocket     : ws://127.0.0.1:$WsPort/ws/auction"
 Write-Host "  Database      : $Database (existing data preserved)"
 if ($backendReused -or $frontendReused) {
   Write-Host "  Note          : reused already-running components (start-local did not start duplicates;" -ForegroundColor Yellow
-  Write-Host "                   stop-local will still stop the recorded listener processes)" -ForegroundColor Yellow
+  Write-Host "                   stop-local leaves reused components running)" -ForegroundColor Yellow
   Write-Host "  Backend log   : (see latest logs\backend-*.log; this run started nothing)"
 } else {
   Write-Host "  Backend log   : $backendLog"

@@ -25,5 +25,5 @@ ENV BID_DB_URL="jdbc:mysql://mysql:3306/bid_arena?useSSL=false&allowPublicKeyRet
     BID_DB_POOL_MAX=20
 EXPOSE 8090 8091
 HEALTHCHECK --interval=10s --timeout=5s --start-period=60s --retries=6 \
-  CMD curl -fsS "http://127.0.0.1:8090/api/v1/health" | grep -q '"code":0' || exit 1
+  CMD curl -fsS "http://127.0.0.1:8090/api/v1/health" | grep -q '"status":"UP"' || exit 1
 ENTRYPOINT ["java", "-cp", "app.jar:lib/*", "com.bidarena.App"]

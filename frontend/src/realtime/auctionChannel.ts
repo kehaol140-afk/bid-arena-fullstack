@@ -1,4 +1,4 @@
-import { listEventsApi } from '@/api/auction'
+import { getAuctionApi, listEventsApi } from '@/api/auction'
 import type { WsMessage } from '@/types'
 import { buildAuctionWsUrl } from '@/utils/wsUrl'
 
@@ -18,7 +18,7 @@ const MAX_BACKOFF_MS = 15_000
  * - seq 单调：发现缺口 → 优先 SYNC:<lastSeq>，通道不可用时 HTTP /events 兜底回放
  * - 断线指数退避自动重连（1s 起、上限 15s、含抖动），重连成功重置
  * - 25s 心跳 PING
- * - 状态类事件去重（seq<=lastSeq 丢弃），AUCTION_SNAPSHOT 永远放行
+ * - 状态事件去重；拒绝其他房间与过旧快照，缺口期间等待权威快照
  */
 export class AuctionChannel {
   private ws: WebSocket | null = null
@@ -28,6 +28,7 @@ export class AuctionChannel {
   private reconnectTimer: number | undefined
   private heartbeatTimer: number | undefined
   private recovering = false
+  private awaitingSnapshot = false
 
   constructor(
     private readonly auctionId: number,
@@ -138,7 +139,7 @@ export class AuctionChannel {
   }
 
   private dispatch(msg: WsMessage) {
-    if (!msg || typeof msg.type !== 'string') return
+    if (!msg || typeof msg.type !== 'string' || msg.auctionId !== this.auctionId) return
     const seq = Number(msg.seq ?? 0)
     const stateful =
       msg.type !== 'CONNECTION_STATE' &&
@@ -146,17 +147,34 @@ export class AuctionChannel {
       msg.type !== 'AUCTION_SNAPSHOT'
 
     if (stateful) {
+      if (this.awaitingSnapshot) return
       if (seq <= this.lastSeq) return // 重复事件（SYNC 补发重叠）丢弃
       if (seq > this.lastSeq + 1) {
         // 缺口：自动恢复
         this.sync()
+        this.awaitingSnapshot = true
+        void this.recoverSnapshot()
+        return
       }
       this.lastSeq = seq
     } else if (msg.type === 'AUCTION_SNAPSHOT') {
+      if (seq < this.lastSeq) return
+      this.awaitingSnapshot = false
       if (seq > this.lastSeq) this.lastSeq = seq
     }
 
     this.callbacks.onEvent(msg)
+  }
+
+  private async recoverSnapshot() {
+    try {
+      const a = await getAuctionApi(this.auctionId)
+      if (this.closedByUser) return
+      this.dispatch({ ...a, type: 'AUCTION_SNAPSHOT', auctionId: a.id,
+        startTime: a.startedAt, serverTime: Date.now() } as WsMessage)
+    } catch {
+      // WS SYNC/reconnect and the room's HTTP polling can still recover authority.
+    }
   }
 
   /** HTTP 兜底：拉取 since=lastSeq 的持久化事件并回放 */

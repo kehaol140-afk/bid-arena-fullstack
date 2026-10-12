@@ -1,8 +1,8 @@
-# Bid Arena 一键编排：MySQL 8 + Solon 后端（+ Vue 前端，profile=full，前端就绪后启用）
+# Bid Arena 一键编排：MySQL 8 + Solon 后端 + Vue 前端（profile=full）
 # 用法：
 #   cp .env.example .env   # 修改 MYSQL_ROOT_PASSWORD 等
 #   docker compose up -d --build            # mysql + backend（自动迁移+种子）
-#   docker compose --profile full up -d --build   # 含前端（需 frontend/ 提供Dockerfile，见 README）
+#   docker compose --profile full up -d --build   # 含前端
 # 健康检查：
 #   docker compose ps          # mysql: mysqladmin ping；backend: /api/v1/health
 # 数据持久化：命名卷 mysql-data（绝不自动删除；清理需人工 docker volume rm）
@@ -11,7 +11,6 @@ name: bid-arena
 services:
   mysql:
     image: mysql:8.0
-    container_name: bid-arena-mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set in .env}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-bid_arena}
@@ -36,7 +35,6 @@ services:
     build:
       context: .
       dockerfile: docker/backend.Dockerfile
-    container_name: bid-arena-backend
     environment:
       BID_DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-bid_arena}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       BID_DB_USER: root
@@ -59,18 +57,22 @@ services:
       start_period: 60s
     restart: unless-stopped
 
-  # 前端由并行团队开发；frontend/ 提供 Dockerfile 后用 --profile full 启用。
+  # Nginx 同源代理 HTTP、OpenAPI 与 WebSocket。
   frontend:
     profiles: ["full"]
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: bid-arena-frontend
     ports:
       - "${FRONTEND_PORT:-5173}:80"
     depends_on:
       backend:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
     restart: unless-stopped
 
 volumes:

@@ -17,7 +17,7 @@ function Step($name, $ok, $detail) {
 function Json($o) { $o | ConvertTo-Json -Compress }
 
 function Post($path, $headers, $bodyObj) {
-    Invoke-RestMethod -Method Post -Uri "http://localhost:$Port$path" -Headers $headers -ContentType "application/json" -Body (Json $bodyObj)
+    Invoke-RestMethod -Method Post -Uri "http://localhost:$Port$path" -Headers $headers -ContentType "application/json; charset=utf-8" -Body (Json $bodyObj)
 }
 function Get2($path, $headers) {
     Invoke-RestMethod -Method Get -Uri "http://localhost:$Port$path" -Headers $headers

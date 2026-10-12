@@ -14,9 +14,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8090',
+        target: process.env.BID_API_BASE || 'http://localhost:8090',
         changeOrigin: true,
       },
+      '/ws': { target: process.env.BID_WS_BASE || 'ws://localhost:8091', ws: true },
+      '/openapi.json': { target: process.env.BID_API_BASE || 'http://localhost:8090' },
     },
   },
   test: {

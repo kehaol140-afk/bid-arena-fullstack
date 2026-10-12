@@ -201,7 +201,7 @@ function applyWsEvent(msg: WsMessage) {
       break
     }
     case 'AUCTION_FINISHED': {
-      a.status = 'FINISHED'
+      a.status = msg.reason === 'CANCELLED' ? 'CANCELLED' : 'FINISHED'
       a.settleReason = msg.reason
       if (!a.result || a.result.winnerId !== msg.winnerId || a.result.finalPrice !== msg.finalPrice) {
         a.result = {

@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { listAuctionsApi } from '@/api/auction'
 import type { Auction, AuctionStatus } from '@/types'
 import AuctionCard from '@/components/AuctionCard.vue'
+import { isDemoAuction } from '@/utils/demoAuctions'
 
 type Filter = 'ALL' | AuctionStatus
 
@@ -18,6 +19,7 @@ const auctions = ref<Auction[]>([])
 const loading = ref(true)
 const error = ref('')
 const filter = ref<Filter>('ALL')
+const demoOnly = ref(true)
 
 let timer: number | undefined
 
@@ -49,12 +51,13 @@ onBeforeUnmount(() => {
 })
 
 const filtered = computed(() => {
-  if (filter.value === 'ALL') return auctions.value
-  return auctions.value.filter((a) => a.status === filter.value)
+  const visible=demoOnly.value ? auctions.value.filter(isDemoAuction) : auctions.value
+  if (filter.value === 'ALL') return visible
+  return visible.filter((a) => a.status === filter.value)
 })
 
 const countOf = (key: Filter) =>
-  key === 'ALL' ? auctions.value.length : auctions.value.filter((a) => a.status === key).length
+  auctions.value.filter(a => (!demoOnly.value || isDemoAuction(a)) && (key === 'ALL' || a.status === key)).length
 </script>
 
 <template>
@@ -64,7 +67,8 @@ const countOf = (key: Filter) =>
         <h1 class="page-title">拍卖大厅</h1>
         <p class="page-sub">实时竞价 · 服务端权威计价 · 毫秒级倒计时</p>
       </div>
-      <button class="btn btn-ghost" :disabled="loading" @click="load()">刷新</button>
+      <div><label><input v-model="demoOnly" type="checkbox" /> 仅演示拍品</label>
+      <button class="btn btn-ghost" :disabled="loading" @click="load()">刷新</button></div>
     </div>
 
     <div class="filter-tabs">

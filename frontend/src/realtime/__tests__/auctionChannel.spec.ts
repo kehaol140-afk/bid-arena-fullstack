@@ -4,6 +4,7 @@ import type { WsMessage } from '@/types'
 
 vi.mock('@/api/auction', () => ({
   listEventsApi: vi.fn(),
+  getAuctionApi: vi.fn(),
 }))
 
 import { listEventsApi } from '@/api/auction'
@@ -109,8 +110,12 @@ describe('AuctionChannel', () => {
     ws.message(envelope({ type: 'BID_ACCEPTED', seq: 5, bidderId: 5, amount: 150 }))
 
     expect(ws.sent).toContain('SYNC:2')
+    // Strengthened: sending SYNC alone must not advance across missing events.
+    expect(ch.currentSeq).toBe(2)
+    expect(events).toHaveLength(0)
+    ws.message(envelope({ type: 'AUCTION_SNAPSHOT', seq: 5, status: 'RUNNING' }))
     expect(ch.currentSeq).toBe(5)
-    expect(events).toHaveLength(1)
+    expect(events.map(e => e.type)).toEqual(['AUCTION_SNAPSHOT'])
 
     ch.close()
   })

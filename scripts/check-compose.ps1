@@ -25,7 +25,13 @@ Check "backend wired to mysql host + env db credentials" ($y -match "jdbc:mysql:
 Check "named volume for mysql data (no anonymous volume)" ($y -match "mysql-data:/var/lib/mysql" -and $y -match "(?m)^volumes:\s*\r?\n\s{2}mysql-data:") ""
 Check "utf8mb4 + UTC server flags" ($y -match "utf8mb4" -and $y -match "default-time-zone") ""
 Check "ports overridable via env (.env)" ($y -match "\$\{BACKEND_HTTP_PORT" -and $y -match "\$\{MYSQL_PORT" -and $y -match "\$\{BACKEND_WS_PORT") ""
-Check "frontend behind profile full (until frontend/ lands)" ($y -match 'profiles: \["full"\]') ""
+Check "frontend included by profile full" ($y -match 'profiles: \["full"\]') ""
+Check "no fixed container_name (project isolation)" ($y -notmatch '(?m)^\s+container_name:') ""
+Check "frontend healthcheck" ($y -match 'wget -q -O /dev/null http://127.0.0.1/') ""
+$nginx=Get-Content (Join-Path $root 'frontend/nginx.conf') -Raw
+Check "Nginx WS upgrade proxy" ($nginx -match 'proxy_pass http://backend:8091' -and $nginx -match 'proxy_set_header Upgrade' -and $nginx -match 'proxy_set_header Connection') ""
+Check "Nginx WS query token excluded from access logs" ($nginx -match '(?s)location /ws/.*?access_log off;') ""
+Check "Nginx OpenAPI proxy" ($nginx -match 'location = /openapi.json') ""
 Check "MYSQL_ROOT_PASSWORD required (fail fast if unset)" ($y -match "\$\{MYSQL_ROOT_PASSWORD:\?set in \.env\}") ""
 
 Write-Host "== backend Dockerfile static checks =="
@@ -50,7 +56,7 @@ if ($dockerCmd) {
   Write-Host "[INFO] docker detected; runtime validation possible:"
   Write-Host "       docker compose config           # validate + interpolate"
   Write-Host "       docker compose up -d --build    # full bring-up"
-  $null = & docker compose -f $compose config --quiet 2>&1
+  $null = & docker compose --env-file $envExample -p bid-arena-codex-config -f $compose --profile full config --quiet 2>&1
   if ($LASTEXITCODE -eq 0) { Write-Host "[PASS] docker compose config (schema valid)" }
   else { Write-Host "[FAIL] docker compose config rejected the file"; $fail = 1 }
 } else {
@@ -58,5 +64,5 @@ if ($dockerCmd) {
 }
 
 Write-Host ""
-if ($fail -eq 0) { Write-Host "RESULT: static checks PASS; runtime = NOT_VERIFIED (no docker)"; exit 0 }
+if ($fail -eq 0) { Write-Host "RESULT: static checks PASS; runtime = NOT_VERIFIED (this script never starts containers)"; exit 0 }
 else { Write-Host "RESULT: static checks FAILED"; exit 1 }

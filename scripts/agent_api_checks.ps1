@@ -11,7 +11,7 @@ function Step($name, $ok, $detail) {
 function Json($o) { $o | ConvertTo-Json -Compress }
 function Req($method, $uri, $headers, $body) {
     try {
-        $r = Invoke-WebRequest -UseBasicParsing -Method $method -Uri $uri -Headers $headers -ContentType "application/json" -Body $body
+        $r = Invoke-WebRequest -UseBasicParsing -Method $method -Uri $uri -Headers $headers -ContentType "application/json; charset=utf-8" -Body $body
         return @{Ok=$true; Resp=($r.Content | ConvertFrom-Json); Raw=$r.Content}
     }
     catch {

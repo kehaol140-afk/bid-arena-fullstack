@@ -4,6 +4,8 @@
   "private": true,
   "description": "Bid Arena 全栈项目根：模拟器/测试入口（后端为 backend/，前端 frontend/ 由并行开发）",
   "scripts": {
-    "simulate:auction": "node --experimental-strip-types --disable-warning=ExperimentalWarning simulator/src/main.ts"
+    "simulate:auction": "node --experimental-strip-types --disable-warning=ExperimentalWarning simulator/src/main.ts",
+    "agent:auction": "node scripts/auction-agent.mjs",
+    "test:audit": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-all.ps1"
   }
 }

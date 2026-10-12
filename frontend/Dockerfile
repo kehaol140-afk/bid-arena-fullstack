@@ -1,7 +1,6 @@
 # Bid Arena frontend: build with Vite, serve with nginx (+ /api reverse proxy to backend)
 # NOTE: runtime NOT_VERIFIED on dev machine (no Docker). Static validation only.
-# Build-time WS address: default fallback ws://<page-hostname>:8091 (src/utils/wsUrl.ts)
-# requires BACKEND_WS_PORT (default 8091) to be mapped on the docker host.
+# WS defaults to the page origin, served by nginx /ws/ upgrade proxy.
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./

@@ -11,6 +11,7 @@ const props = defineProps<{
 const meta = computed(() => STATUS_META[props.auction.status])
 const isRunning = computed(() => props.auction.status === 'RUNNING')
 const hasBid = computed(() => props.auction.currentLeaderId != null)
+const leaderName = computed(() => props.auction.currentLeaderName || `用户 #${props.auction.currentLeaderId}`)
 </script>
 
 <template>
@@ -39,7 +40,7 @@ const hasBid = computed(() => props.auction.currentLeaderId != null)
     </div>
 
     <div class="ac-meta">
-      <span>{{ hasBid ? `领先者 · ${auction.currentLeaderName}` : '暂无出价' }}</span>
+      <span>{{ hasBid ? `领先者 · ${leaderName}` : '暂无出价' }}</span>
       <span>{{ auction.participantCount }} 人参与</span>
       <span>最小加价 {{ auction.minIncrement }}</span>
     </div>

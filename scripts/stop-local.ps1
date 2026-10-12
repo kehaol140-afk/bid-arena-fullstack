@@ -8,9 +8,10 @@
 #   - node/npm/cmd -> must reference this repo's paths
 #   - never touches other Java/Node processes, the database, or any user files
 #   - logs are kept for troubleshooting; only the runtime state file is removed
+param([string]$StateFile)
 $ErrorActionPreference = "Continue"
 $root = Split-Path -Parent $PSScriptRoot
-$stateFile = Join-Path $root "logs\local-stack.json"
+if (-not $StateFile) { $StateFile = Join-Path $root "logs\local-stack.json" }
 
 if (-not (Test-Path $stateFile)) {
   Write-Host "[stop-local] no state file ($stateFile) - nothing started by start-local.ps1, nothing to stop."
@@ -55,8 +56,8 @@ function Get-Descendants([int]$rootPid) {
 }
 
 # 1) the actual listeners first (most reliable): java on http/ws port, node on vite port
-Stop-IfOurs ([int]$state.backendJavaPid)  "backend java"
-Stop-IfOurs ([int]$state.frontendNodePid) "frontend node"
+if ([int]$state.backendCmdPid -gt 0) { Stop-IfOurs ([int]$state.backendJavaPid) "backend java" }
+if ([int]$state.frontendCmdPid -gt 0) { Stop-IfOurs ([int]$state.frontendNodePid) "frontend node" }
 
 # 2) wrapper trees (cmd -> java / cmd -> npm -> node), children first
 foreach ($entry in @(

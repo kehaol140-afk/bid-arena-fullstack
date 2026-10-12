@@ -19,19 +19,19 @@ try {
     foreach ($i in 1..40) { Start-Sleep -Milliseconds 700; try { $h = Invoke-RestMethod "http://127.0.0.1:$Port/api/v1/health" -TimeoutSec 2; if ($h.code -eq 0 -and $h.data.status -eq "UP") { $up=$true; break } } catch {} }
     if (-not $up) { throw "backend not up" }
 
-    $admin = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$Port/api/v1/auth/login" -ContentType "application/json" -Body (Json @{email="admin@example.com";password="Admin123456!"})
+    $admin = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$Port/api/v1/auth/login" -ContentType "application/json; charset=utf-8" -Body (Json @{email="admin@example.com";password="Admin123456!"})
     $H = @{Authorization = "Bearer $($admin.data.token)"}
-    $a = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$Port/api/v1/auth/login" -ContentType "application/json" -Body (Json @{email="bidder_a@example.com";password="Test123456!"})
+    $a = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$Port/api/v1/auth/login" -ContentType "application/json; charset=utf-8" -Body (Json @{email="bidder_a@example.com";password="Test123456!"})
     $HA = @{Authorization = "Bearer $($a.data.token)"}
 
-    $create = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$Port/api/v1/admin/auctions" -Headers $H -ContentType "application/json" -Body (Json @{title="edge-checks"; durationSeconds=120})
+    $create = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$Port/api/v1/admin/auctions" -Headers $H -ContentType "application/json; charset=utf-8" -Body (Json @{title="edge-checks"; durationSeconds=120})
     $aid = $create.data.auctionId
-    Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$Port/api/v1/admin/auctions/$aid/start" -Headers $H -ContentType "application/json" -Body "{}" | Out-Null
-    Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$Port/api/v1/auctions/$aid/join" -Headers $HA -ContentType "application/json" -Body "{}" | Out-Null
+    Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$Port/api/v1/admin/auctions/$aid/start" -Headers $H -ContentType "application/json; charset=utf-8" -Body "{}" | Out-Null
+    Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$Port/api/v1/auctions/$aid/join" -Headers $HA -ContentType "application/json; charset=utf-8" -Body "{}" | Out-Null
     Write-Host "[edge] auction=$aid started (start_price=100, min_incr=10)"
 
     function TryBid($headers, $body) {
-        try { $r = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$Port/api/v1/auctions/$aid/bids" -Headers $headers -ContentType "application/json" -Body (Json $body); return @{Ok=$true; Resp=$r} }
+        try { $r = Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:$Port/api/v1/auctions/$aid/bids" -Headers $headers -ContentType "application/json; charset=utf-8" -Body (Json $body); return @{Ok=$true; Resp=$r} }
         catch {
             $stream = $_.Exception.Response.GetResponseStream()
             if ($stream) { $sr = New-Object IO.StreamReader($stream); $bodyText = $sr.ReadToEnd(); try { $parsed = $bodyText | ConvertFrom-Json } catch { $parsed = $bodyText } ; return @{Ok=$false; Resp=$parsed; HttpStatus=[int]$_.Exception.Response.StatusCode} }

@@ -1,0 +1,10 @@
+.git
+**/node_modules
+**/target
+**/dist
+**/logs
+**/*.log
+.env
+.env.local
+docs/e2e_screenshots
+simulator/reports
