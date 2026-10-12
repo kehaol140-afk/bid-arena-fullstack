@@ -80,7 +80,10 @@ export async function reconnectPhase(ctx: Ctx): Promise<boolean> {
   await rc2.connect(url(botToken), 5000);
   await rc2.waitFor((e) => e.type === "AUCTION_SNAPSHOT", 4000);
   const replay = await rc2.sync(lastSeq, 5000);
+  // 事件连续性只统计补发的事件（seq 递增），AUCTION_SNAPSHOT 信封携带的是“当前最新 seq”
+  // 而非事件序号（DB 证据：auction_events 无重复 seq），不能计入事件序列（曾致 [38,38] 假缺口）
   const replaySeqs = replay
+    .filter((e) => e.type !== "AUCTION_SNAPSHOT" && e.type !== "CONNECTION_STATE")
     .filter((e) => typeof e.seq === "number" && (e.seq as number) > lastSeq)
     .map((e) => e.seq as number)
     .sort((a, b) => a - b);

@@ -146,7 +146,14 @@ export class ApiClient {
 
   // ---- 认证 ----
   login(email: string, password: string) {
-    return this.call<LoginData>("POST", "/api/v1/auth/login", { email, password });
+    // 登录成功自动保存会话 token（此前未保存导致所有后续请求裸奔 401，
+    // 2026-10-12 由 20 人模拟暴露；断言层不受影响）
+    return this.call<LoginData>("POST", "/api/v1/auth/login", { email, password }).then((r) => {
+      if (r.body.code === 0 && r.body.data?.token) {
+        this.setToken(r.body.data.token);
+      }
+      return r;
+    });
   }
   logout() {
     return this.call<null>("POST", "/api/v1/auth/logout");
