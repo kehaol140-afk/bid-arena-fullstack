@@ -110,6 +110,10 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
+        <configuration>
+          <!-- Solon 路由/参数绑定依赖参数名反射，必须保留 -parameters -->
+          <parameters>true</parameters>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
