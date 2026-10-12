@@ -65,8 +65,10 @@ public class BidController {
             vo.setAuctionId(r.getAuctionId());
             vo.setUserId(r.getUserId());
             vo.setAmount(r.getAmount());
+            vo.setRequestId(r.getRequestId());
             vo.setSeq(r.getSeq());
             vo.setServerTime(r.getCreatedAt());
+            vo.setCreatedAt(r.getCreatedAt());
             out.add(vo);
         }
         return ApiResult.ok(out);
@@ -78,6 +80,7 @@ public class BidController {
         vo.setAuctionId(auctionId);
         vo.setUserId(out.getLeaderUserId());
         vo.setAmount(req.getAmount());
+        vo.setRequestId(req.getRequestId());
         vo.setSeq(out.getLastEventSeq());
         vo.setIdempotentReplay(out.isIdempotentReplay());
         vo.setCurrentPrice(out.getCurrentPrice());

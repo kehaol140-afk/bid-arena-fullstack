@@ -8,7 +8,10 @@ public class App {
     public static volatile boolean dbReady = false;
 
     public static void main(String[] args) {
-        Solon.start(App.class, args);
+        // QA-005 根因修复：Solon 3 的 SolonApp 默认 _enableWebSocket=false，
+        // NettyWsPlugin.start() 检查该标志为 false 时直接返回（netty 不监听 server.websocket.port）。
+        // builder 在插件启动前执行，此处显式开启 WebSocket 信号。
+        Solon.start(App.class, args, app -> app.enableWebSocket(true));
         try {
             // 启动后立即执行数据库迁移与幂等种子（服务可用前完成初始化）
             DatabaseInitializer.run();

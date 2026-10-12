@@ -28,23 +28,34 @@ public class WsConfig {
 
     @Bean
     public void register(WebSocketRouter router) {
-        WsSessionRegistry registry = Solon.context().getBean(WsSessionRegistry.class);
-        router.of("/ws/auction", new AuctionWsListener(registry));
+        // 注意：@Bean 注册时机早于部分 @Component（如 SessionRepository），
+        // 构造期 Solon.context().getBean 会返回 null（实测 NPE：sessions is null，
+        // 每个连接在 onOpen 即被关闭）。改为连接到达时惰性解析。
+        router.of("/ws/auction", new AuctionWsListener());
     }
 
     static class AuctionWsListener implements WebSocketListener {
-        private final WsSessionRegistry registry;
-        private final SessionRepository sessions = Solon.context().getBean(SessionRepository.class);
-        private final AuctionRepository auctions = Solon.context().getBean(AuctionRepository.class);
-        private final WsBroadcaster broadcaster = Solon.context().getBean(WsBroadcaster.class);
-        private final EventFactory factory = Solon.context().getBean(EventFactory.class);
+        private WsSessionRegistry registry;
+        private SessionRepository sessions;
+        private AuctionRepository auctions;
+        private WsBroadcaster broadcaster;
+        private EventFactory factory;
 
-        AuctionWsListener(WsSessionRegistry registry) {
-            this.registry = registry;
+        /** 首个连接到达时解析依赖（此时全部 bean 已就绪） */
+        private synchronized void resolveBeans() {
+            if (registry != null) {
+                return;
+            }
+            registry = Solon.context().getBean(WsSessionRegistry.class);
+            sessions = Solon.context().getBean(SessionRepository.class);
+            auctions = Solon.context().getBean(AuctionRepository.class);
+            broadcaster = Solon.context().getBean(WsBroadcaster.class);
+            factory = Solon.context().getBean(EventFactory.class);
         }
 
         @Override
         public void onOpen(WebSocket socket) {
+            resolveBeans();
             Long auctionId = parseLong(socket.param("auctionId"));
             String token = socket.param("token");
             if (auctionId == null || token == null) {
@@ -100,13 +111,17 @@ public class WsConfig {
 
         @Override
         public void onClose(WebSocket socket) {
-            registry.leave(socket);
+            if (registry != null) {
+                registry.leave(socket);
+            }
         }
 
         @Override
         public void onError(WebSocket socket, Throwable error) {
             log.warn("ws error auction socket={}: {}", socket.id(), String.valueOf(error));
-            registry.leave(socket);
+            if (registry != null) {
+                registry.leave(socket);
+            }
         }
 
         private void sendSnapshot(WebSocket socket, long auctionId) {

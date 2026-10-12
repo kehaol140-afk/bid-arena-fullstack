@@ -88,6 +88,7 @@ public class AgentController {
         vo.setAuctionId(id);
         vo.setUserId(out.getLeaderUserId());
         vo.setAmount(req.getAmount());
+        vo.setRequestId(req.getRequestId());
         vo.setSeq(out.getLastEventSeq());
         vo.setIdempotentReplay(out.isIdempotentReplay());
         vo.setCurrentPrice(out.getCurrentPrice());

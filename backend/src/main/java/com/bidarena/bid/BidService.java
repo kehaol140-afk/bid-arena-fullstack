@@ -48,7 +48,18 @@ public class BidService {
     public BidOutcome placeBid(long auctionId, long userId, String requestId, long amount, long receivedAt) {
         validateInput(auctionId, userId, requestId, amount);
         try {
-            // 1-2. requestId 幂等（行锁防并发同号）
+            // 1-2. requestId 幂等检查必须位于拍卖行锁之后：
+            // 若在锁前做 FOR UPDATE 空结果检查，并发同 requestId 事务会在 bids 唯一索引
+            // 空区间各持 gap 锁（互相兼容），领先者 INSERT 的插入意向锁与其冲突，
+            // 后续事务又在等拍卖行锁 —— 形成环形等待（实测 MySQL 1213 Deadlock，P6-3）。
+            // 移到锁后：幂等检查在串行化点内执行，锁定读能读到已提交的同号出价 → 干净走重放。
+
+            // 3. 锁拍卖（第一把锁：单场串行化点）
+            Auction a = auctions.lockById(auctionId);
+            if (a == null) {
+                throw new BusinessException(ErrorCode.NOT_FOUND, "拍卖不存在");
+            }
+            // 1-2（锁内）。requestId 幂等（FOR UPDATE 在串行化点内，读到已提交即重放）
             BidRepository.BidRow existing = bids.findByRequest(userId, requestId);
             if (existing != null) {
                 if (existing.getAmount() != amount) {
@@ -57,12 +68,6 @@ public class BidService {
                 }
                 return new BidOutcome(true, existing.getId(), existing.getSeq(), existing.getSeq(),
                         existing.getAmount(), null, false, 0, existing.getUserId(), 0);
-            }
-
-            // 3. 锁拍卖（第一把锁：单场串行化点）
-            Auction a = auctions.lockById(auctionId);
-            if (a == null) {
-                throw new BusinessException(ErrorCode.NOT_FOUND, "拍卖不存在");
             }
             // 4. 只有 RUNNING 接受出价
             if (!Auction.RUNNING.equals(a.getStatus())) {

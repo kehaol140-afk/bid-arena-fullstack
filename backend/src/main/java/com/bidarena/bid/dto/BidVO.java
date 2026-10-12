@@ -5,6 +5,7 @@ public class BidVO {
     private long auctionId;
     private long userId;
     private long amount;
+    private String requestId;
     private long seq;
     private boolean idempotentReplay;
     private long currentPrice;
@@ -12,6 +13,23 @@ public class BidVO {
     private boolean extended;
     private int extendCount;
     private long serverTime;
+    private Long createdAt;
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Long createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public long getBidId() {
         return bidId;
