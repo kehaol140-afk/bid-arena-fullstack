@@ -1,5 +1,6 @@
 package com.bidarena.common;
 
+import com.bidarena.App;
 import org.noear.solon.annotation.Controller;
 import org.noear.solon.annotation.Get;
 import org.noear.solon.annotation.Mapping;
@@ -11,6 +12,9 @@ public class HealthController {
     @Get
     @Mapping("/api/v1/health")
     public ApiResult<Map<String, Object>> health() {
-        return ApiResult.ok(Map.of("status", "UP", "time", System.currentTimeMillis()));
+        boolean ready = App.dbReady;
+        return ApiResult.ok(Map.of(
+                "status", ready ? "UP" : "STARTING",
+                "time", System.currentTimeMillis()));
     }
 }

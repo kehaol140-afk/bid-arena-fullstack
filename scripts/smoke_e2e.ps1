@@ -35,7 +35,8 @@ function Start-Backend([string]$logTag) {
         Start-Sleep -Milliseconds 700
         try {
             $h = Invoke-RestMethod "http://localhost:$Port/api/v1/health" -TimeoutSec 2
-            if ($h.code -eq 0) { $ready = $true; break }
+            # 必须等 status=UP：HTTP 监听早于 flyway 迁移+种子完成（空库启动竞态，health 为 STARTING）
+            if ($h.code -eq 0 -and $h.data.status -eq "UP") { $ready = $true; break }
         } catch {}
     }
     return @{Proc=$p; Ready=$ready}
@@ -95,7 +96,7 @@ try {
     $settled = $false; $detail = "not finished"; $d = $null
     foreach ($i in 1..30) {
         Start-Sleep -Milliseconds 800
-        $d = Get2 "/api/v1/auctions/$auctionId" @{}
+        $d = Get2 "/api/v1/auctions/$auctionId" $H
         if ($d.data.status -eq "FINISHED") {
             $settled = $true
             $detail = "status=FINISHED winner=$($d.data.result.winnerId) price=$($d.data.result.finalPrice) reason=$($d.data.result.reason)"
@@ -132,7 +133,7 @@ try {
     $resumed = $false; $detail2 = "not resumed"; $d2 = $null
     foreach ($i in 1..30) {
         Start-Sleep -Milliseconds 800
-        $d2 = Get2 "/api/v1/auctions/$aid2" @{}
+        $d2 = Get2 "/api/v1/auctions/$aid2" $H
         if ($d2.data.status -eq "FINISHED") {
             $resumed = $true
             $detail2 = "status=FINISHED winner=$($d2.data.result.winnerId) reason=$($d2.data.result.reason)"
@@ -148,12 +149,16 @@ try {
 }
 catch {
     Step "unexpected error" $false $_.Exception.Message
-    Get-Process java -ErrorAction SilentlyContinue | Stop-Process -Force
+}
+finally {
+    # 只停止本脚本启动的后端进程，绝不动机器上其他 java 进程（共享开发机）
+    Stop-Backend $app
+    Stop-Backend $app2
 }
 
 Write-Host ""
 Write-Host "===== GATE-A2 SUMMARY ====="
-$fail = ($results | Where-Object {$_.Result -eq "FAIL"}).Count
+$fail = @($results | Where-Object {$_.Result -eq "FAIL"}).Count
 $results | Format-Table -AutoSize
 Write-Host ("TOTAL={0} PASS={1} FAIL={2}" -f $results.Count, ($results.Count - $fail), $fail)
 if ($fail -gt 0) { exit 1 } else { exit 0 }
