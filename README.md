@@ -2,7 +2,7 @@
 
 Vue3 + TypeScript + Pinia；Java17目标/Solon3.10.7；MySQL8；WebSocket；Node22模拟器与独立竞拍Agent。MySQL是唯一业务事实源，积分不涉及真实支付。
 
-本轮独立审计：docs/CODEX_AUDIT_REPORT.md（修复前），docs/CODEX_FINAL_AUDIT.md（最终实测与剩余风险）。旧docs中的集成报告是前任历史记录，不等于本轮验证；不存在的历史测试类不能当证据。Docker运行、Java17容器及本人录屏/设计确认未验证，详见最终报告。
+本轮独立审计：docs/CODEX_AUDIT_REPORT.md（修复前），docs/CODEX_FINAL_AUDIT.md（最终实测与剩余风险），docs/DOCKER_VALIDATION.md（Docker/Java17容器实测验收，补齐前两者NOT_VERIFIED项）。旧docs中的集成报告是前任历史记录，不等于本轮验证；不存在的历史测试类不能当证据。多实例WS即时跨进程广播与本人录屏/设计确认仍未验证，详见最终报告。
 
 ## 本地快速启动
 
@@ -56,9 +56,9 @@ powershell -ExecutionPolicy Bypass -File scripts/test-all.ps1
 
 对运行中的演示库执行npm run simulate:auction会新增场和资金流水；推荐先用隔离测试入口，不把模拟结果混入普通演示。单独模拟node scripts/demo-audit.mjs --seed=42；浏览器node scripts/demo-audit.mjs --browser（需先设置BID_JAVA_EXE为实际JDK/bin/java.exe）。
 
-## Docker完整启动（待运行时确认）
+## Docker完整启动（已实测验证）
 
-Windows安装Docker Desktop并启用WSL2/Linux containers，确保Docker Engine运行及docker compose v2可用。本轮主机没有Docker，以下是待执行验收步骤，不是已通过结果。不要使用down -v或删除现有卷。
+2026-10-12已在Docker Engine 29.8.2/Compose v5.6.0（Linux容器）完成真实隔离部署验收：Java17容器（Temurin 17.0.20.1）运行、自动迁移种子、完整竞拍/Agent/结算/SETTLING恢复/重启持久化17项全部PASS。逐项证据与边界见docs/DOCKER_VALIDATION.md。docker.exe不在PATH时先前置 `%LOCALAPPDATA%\Programs\DockerDesktop\resources\bin`。不要使用down -v或删除现有卷。
 
 ```powershell
 Copy-Item .env.example .env
@@ -73,7 +73,7 @@ docker compose -p bid-arena-codex-check --profile full ps
 docker compose -p bid-arena-codex-check --profile full logs --tail 100
 # 访问http://localhost:15173；Nginx同源代理/api/v1、/openapi.json、/ws/
 docker compose -p bid-arena-codex-check --profile full restart
-# 按下列部署验收清单核对，再停止；命名卷保留
+# 按docs/DOCKER_VALIDATION.md部署验收清单核对，再停止；命名卷保留
 docker compose -p bid-arena-codex-check --profile full down
 ```
 
