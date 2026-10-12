@@ -4,6 +4,7 @@ import com.bidarena.auction.dto.AuctionDetailVO;
 import com.bidarena.auth.AuthInterceptor;
 import com.bidarena.common.ApiResult;
 import org.noear.solon.annotation.Controller;
+import org.noear.solon.annotation.Get;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.annotation.Mapping;
 import org.noear.solon.annotation.Post;
@@ -19,11 +20,13 @@ public class AuctionController {
     @Inject
     AuctionEventWriter events;
 
+    @Get
     @Mapping
     public ApiResult<List<AuctionDetailVO>> list() {
         return ApiResult.ok(auctions.list());
     }
 
+    @Get
     @Mapping("/{id}")
     public ApiResult<AuctionDetailVO> detail(long id) {
         return ApiResult.ok(auctions.detail(id));
@@ -42,6 +45,7 @@ public class AuctionController {
     }
 
     /** 事件回放接口：断线/缺号客户端按 seq 拉取（HTTP 兜底，WebSocket 之外的恢复途径） */
+    @Get
     @Mapping("/{id}/events")
     public ApiResult<List<AuctionEventWriter.EventRow>> events(long id, Long since) throws java.sql.SQLException {
         return ApiResult.ok(events.since(id, since == null ? 0L : since));

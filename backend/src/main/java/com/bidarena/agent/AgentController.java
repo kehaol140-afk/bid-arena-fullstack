@@ -9,6 +9,7 @@ import com.bidarena.bid.dto.BidRequest;
 import com.bidarena.bid.dto.BidVO;
 import com.bidarena.common.ApiResult;
 import org.noear.solon.annotation.Controller;
+import org.noear.solon.annotation.Get;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.annotation.Mapping;
 import org.noear.solon.annotation.Post;
@@ -30,6 +31,7 @@ public class AgentController {
     @Inject
     AuctionEventWriter events;
 
+    @Get
     @Mapping("/me")
     public ApiResult<Map<String, Object>> me(Context ctx) {
         AgentTokenRepository.AgentTokenRow t = AgentAuthInterceptor.currentToken(ctx);
@@ -42,6 +44,7 @@ public class AgentController {
                 "rateLimitPerMin", t.getRateLimitPerMin()));
     }
 
+    @Get
     @Mapping("/auctions/{id}")
     public ApiResult<AuctionDetailVO> auction(long id, Context ctx) {
         AgentAuthInterceptor.assertScope(ctx, id, "auction:read");
@@ -51,6 +54,7 @@ public class AgentController {
     @Inject
     com.bidarena.bid.BidRepository bidRepo;
 
+    @Get
     @Mapping("/auctions/{id}/bids")
     public ApiResult<Object> bids(long id, Context ctx) throws java.sql.SQLException {
         AgentAuthInterceptor.assertScope(ctx, id, "auction:read");

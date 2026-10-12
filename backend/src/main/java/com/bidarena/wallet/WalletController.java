@@ -5,6 +5,7 @@ import com.bidarena.common.ApiResult;
 import com.bidarena.common.BusinessException;
 import com.bidarena.common.ErrorCode;
 import org.noear.solon.annotation.Controller;
+import org.noear.solon.annotation.Get;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.annotation.Mapping;
 import org.noear.solon.data.sql.SqlUtils;
@@ -22,6 +23,7 @@ public class WalletController {
     SqlUtils sql;
 
     /** 只允许查询自己的钱包（普通用户禁止查看他人隐私） */
+    @Get
     @Mapping("/me")
     public ApiResult<WalletVO> me(Context ctx) {
         try {
@@ -37,6 +39,7 @@ public class WalletController {
     }
 
     /** 本人资金流水（最新优先） */
+    @Get
     @Mapping("/me/ledger")
     public ApiResult<List<LedgerVO>> ledger(Context ctx) {
         try {

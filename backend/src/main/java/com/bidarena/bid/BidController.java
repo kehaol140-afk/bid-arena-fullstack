@@ -7,6 +7,7 @@ import com.bidarena.bid.dto.BidVO;
 import com.bidarena.common.ApiResult;
 import com.bidarena.common.BusinessException;
 import org.noear.solon.annotation.Controller;
+import org.noear.solon.annotation.Get;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.annotation.Mapping;
 import org.noear.solon.annotation.Post;
@@ -53,6 +54,7 @@ public class BidController {
         }
     }
 
+    @Get
     @Mapping
     public ApiResult<List<BidVO>> list(long id) throws SQLException {
         List<BidRepository.BidRow> rows = bids.listByAuction(id, 200);

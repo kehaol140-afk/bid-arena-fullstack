@@ -5,6 +5,7 @@ import com.bidarena.common.ApiResult;
 import com.bidarena.common.BusinessException;
 import com.bidarena.common.ErrorCode;
 import org.noear.solon.annotation.Controller;
+import org.noear.solon.annotation.Get;
 import org.noear.solon.annotation.Inject;
 import org.noear.solon.annotation.Mapping;
 import org.noear.solon.annotation.Post;
@@ -47,6 +48,7 @@ public class AdminAgentTokenController {
                 "rateLimitPerMin", issued.rateLimitPerMin()));
     }
 
+    @Get
     @Mapping
     public ApiResult<List<Map<String, Object>>> list(Long userId) throws SQLException {
         List<AgentTokenRepository.AgentTokenRow> rows =
