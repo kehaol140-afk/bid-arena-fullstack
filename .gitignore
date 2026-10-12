@@ -26,3 +26,5 @@ Thumbs.db
 
 # Simulator reports (machine-readable, keep dir)
 simulator/reports/*.json
+
+docs/e2e_screenshots/edge-profile/
