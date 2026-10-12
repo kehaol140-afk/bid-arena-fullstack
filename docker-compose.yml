@@ -50,7 +50,9 @@ services:
       mysql:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8090/api/v1/health | grep -q '\"code\":0'"]
+      # health 在 Flyway 迁移+种子完成前返回 STARTING（App.dbReady 门禁），
+      # 容器健康必须等 status=UP，避免空库窗口期被编排器视为就绪
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8090/api/v1/health | grep -q '\"status\":\"UP\"'"]
       interval: 10s
       timeout: 5s
       retries: 6
