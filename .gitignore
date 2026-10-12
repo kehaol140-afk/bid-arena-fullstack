@@ -6,6 +6,7 @@ simulator/node_modules/
 
 # Logs
 backend/logs/
+logs/
 *.log
 
 # Env & secrets
