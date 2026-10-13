@@ -79,10 +79,19 @@ docker compose -p bid-arena-codex-check --profile full down
 
 必须实际核对：mysql/backend/frontend healthy、自动V1/V2+种子、登录、两人出价、浏览器WS连接/序号、到期结算、重启后旧结果/资金/流水仍在、滞留SETTLING恢复。日志不能包含明文Token。默认单后端；多实例资金唯一结算已测，但WS主动广播仅进程内，需SYNC/HTTP轮询恢复，不能声称即时跨实例事件分发。
 
+日常演示推荐使用独立演示环境（一键脚本，独立项目/卷/端口25173，不与本节验收实例冲突）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/demo-docker.ps1 -Action up      # http://localhost:25173
+powershell -ExecutionPolicy Bypass -File scripts/demo-docker.ps1 -Action down    # 停止保留数据
+```
+
+操作流程见docs/USER_GUIDE.md。
+
 ## 接口及交付文件
 
 GET /openapi.json为实际路由生成的Swagger/OpenAPI2 JSON；本地前端同源代理亦可访问。SessionBearer与AgentBearer分别认证，错误响应HTTP状态及code都需检查。主HTTP包括auth/login/logout、users/me、wallet/ledger、auctions/detail/join/bids/events、admin场与Token；Agent工具完整路径见AGENT_TOOL_SPEC。
 
-DESIGN：锁、事务、失败恢复及WS边界；DECISIONS：本轮决定/未采用方案；AI_USAGE：OpenCode/GLM/Codex来源与本人待确认；DEBUG_LOG：真实错误；docs/DEMO_RECORDING.md：3–5分钟录屏计划。需要本人确认的历史设计和代码比例不代填。
+DESIGN：锁、事务、失败恢复及WS边界；DECISIONS：本轮决定/未采用方案；AI_USAGE：OpenCode/GLM/Codex来源与本人待确认；DEBUG_LOG：真实错误；docs/USER_GUIDE.md：可操作用户手册；docs/DEMO_RECORDING.md：3–5分钟录屏计划；docs/WALLET_FIX_REPORT.md、docs/DEMO_UX_REVIEW.md、docs/DOCKER_VALIDATION.md：三轮后续验收报告。需要本人确认的历史设计和代码比例不代填。
 
-Git工作在audit/codex-final，真实修复本地提交；本轮没有push或合并main。最终提交前需本人完成Docker验收、AI_USAGE确认和录屏，逐项理解资金与恢复设计。
+Git工作在audit/codex-final，真实修复本地提交；本轮没有push或合并main。Docker/Java17验收已由后续轮完成并留证（docs/DOCKER_VALIDATION.md）；最终提交前仍需本人完成AI_USAGE确认与3–5分钟录屏，逐项理解资金与恢复设计。

@@ -44,4 +44,4 @@ Agent只能访问/api/v1/agent；不能拿该Token调用管理员、普通用户
 
 Compose full包含MySQL8、Java17 Solon、Vue/Nginx；具名卷随项目隔离，健康检查与依赖门禁等待迁移种子就绪。无固定container_name；宿主端口可覆盖。初始化通过数据库命名锁串行化幂等种子，不改已有钱包余额；启动保留一场DRAFT供手动开始。
 
-本轮本机Java21编译release17并实际运行；Docker/Java17容器未实际启动，不能用静态配置代替验证。scripts/test-all.ps1使用每次新建的bid_arena_codex_*库与独立端口，不重置用户bid_arena。前端演示筛选只认固定种子标题或description的[DEMO]前缀，可关闭；不删除历史测试拍卖。
+本轮本机Java21编译release17并实际运行；Docker/Java17容器已于2026-10-12由后续Docker验收轮实际启动并通过17项检查（Java 17.0.20.1真实运行、迁移种子、结算与恢复、重启持久化，见docs/DOCKER_VALIDATION.md）。scripts/test-all.ps1使用每次新建的bid_arena_codex_*库与独立端口，不重置用户bid_arena。前端演示筛选只认固定种子标题或description的[DEMO]前缀，可关闭；不删除历史测试拍卖。
