@@ -150,6 +150,18 @@ const sorted = computed(() => [...auctions.value].sort((a, b) => b.id - a.id))
       </div>
     </div>
 
+    <div class="alert alert-info admin-flow">
+      <div>
+        <strong>演示流程：</strong>① 右上角「+ 创建拍卖」新建（创建后为 <strong>DRAFT 待启动</strong>，不倒计时）→
+        ② 在下方列表对该场点「<strong>启动</strong>」开始倒计时，参与者即可加入出价 →
+        ③ 到期<strong>自动结算</strong>（赢家扣款、其余解冻）；需要中止时点「取消」，全部冻结立即释放。
+      </div>
+      <div class="flow-sub">
+        提示：想让拍品出现在用户端默认「仅演示拍品」列表，将描述以 <code>[DEMO]</code> 开头即可；
+        Agent 自动竞拍演示请进「Agent Token 管理」签发受限 Token（操作步骤见 docs/USER_GUIDE.md）。
+      </div>
+    </div>
+
     <!-- 创建面板 -->
     <div v-if="showCreate" class="card create-card">
       <h3 class="card-title">新建拍卖（创建后为 DRAFT，不自动倒计时）</h3>
@@ -267,6 +279,25 @@ const sorted = computed(() => [...auctions.value].sort((a, b) => b.id - a.id))
 </template>
 
 <style scoped>
+.admin-flow {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-flow code {
+  background: var(--surface-2);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 12px;
+}
+
+.flow-sub {
+  font-size: 12.5px;
+  opacity: 0.85;
+}
+
 .head-actions {
   display: flex;
   gap: 10px;

@@ -291,18 +291,23 @@ watch(minNextBid, (mn) => {
 const channelBadge = computed(() => {
   switch (channelStatus.value) {
     case 'connected':
-      return { text: '实时', cls: 'ch-live' }
+      return { text: '实时同步', cls: 'ch-live' }
     case 'connecting':
-      return { text: '连接中', cls: 'ch-wait' }
+      return { text: '同步连接中', cls: 'ch-wait' }
     case 'reconnecting':
-      return { text: '重连中', cls: 'ch-wait' }
+      return { text: '同步重连中', cls: 'ch-wait' }
     case 'rejected':
-      return { text: '实时被拒', cls: 'ch-off' }
+      return { text: '同步被拒', cls: 'ch-off' }
     case 'closed':
-      return { text: '离线', cls: 'ch-off' }
+      return { text: '同步离线', cls: 'ch-off' }
     default:
-      return { text: '离线', cls: 'ch-off' }
+      return { text: '同步离线', cls: 'ch-off' }
   }
+})
+
+const channelBadgeTitle = computed(() => {
+  const base = '这是页面与服务器的 WebSocket 消息通道状态，不代表拍卖正在进行'
+  return channelNote.value ? `${channelNote.value}（${base}）` : base
 })
 
 function quickBid(multiplier: number) {
@@ -453,7 +458,7 @@ function goBack() {
             <span
               class="channel-badge mono"
               :class="channelBadge.cls"
-              :title="channelNote || 'WebSocket 实时通道状态'"
+              :title="channelBadgeTitle"
             >
               <span class="dot"></span>{{ channelBadge.text }}
             </span>
@@ -531,7 +536,10 @@ function goBack() {
             </template>
 
             <template v-else-if="isRunning && !isJoined">
-              <p class="dim">加入本场拍卖后方可出价（仅竞拍中可加入，重复加入幂等）。</p>
+              <p class="join-steps">
+                <strong>第一步</strong>：点击下方按钮<strong>加入本场竞拍</strong>；
+                <strong>第二步</strong>：加入后即可出价竞争（仅竞拍中可加入，重复加入幂等）。
+              </p>
               <div v-if="joinError" class="alert alert-error">{{ joinError }}</div>
               <button class="btn btn-gold btn-lg" :disabled="joining" @click="onJoin">
                 {{ joining ? '加入中…' : '加入本场竞拍' }}
@@ -550,6 +558,9 @@ function goBack() {
               <div class="bid-min-row">
                 <span>最低可出价：<strong class="price">{{ formatPrice(minNextBid) }}</strong> 积分（当前价 + 最小加价 {{ auction.minIncrement }}）</span>
               </div>
+              <p class="bid-freeze-hint">
+                出价将冻结相应积分；被他人超越时自动解冻释放，可继续出价；结算时赢家扣款、其余全额退还。可用/冻结额度见右侧「我的钱包」。
+              </p>
 
               <div class="bid-input-row">
                 <input
@@ -815,7 +826,22 @@ function goBack() {
 .bid-min-row {
   font-size: 13px;
   color: var(--ink-2);
-  margin-bottom: 12px;
+  margin-bottom: 6px;
+}
+
+.bid-freeze-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+
+.join-steps {
+  color: var(--ink-2);
+  margin: 0 0 12px;
+}
+
+.join-steps strong {
+  color: var(--gold);
 }
 
 .bid-input-row {

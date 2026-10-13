@@ -11,6 +11,7 @@ logs/
 
 # Env & secrets
 .env
+.env.demo
 .env.local
 *.pem
 *.key

@@ -67,7 +67,7 @@ const countOf = (key: Filter) =>
         <h1 class="page-title">拍卖大厅</h1>
         <p class="page-sub">实时竞价 · 服务端权威计价 · 毫秒级倒计时</p>
       </div>
-      <div><label><input v-model="demoOnly" type="checkbox" /> 仅演示拍品</label>
+      <div><label title="只显示种子演示拍品及描述以 [DEMO] 开头的拍卖，隐藏历史测试数据；取消勾选可查看全部"><input v-model="demoOnly" type="checkbox" /> 仅演示拍品</label>
       <button class="btn btn-ghost" :disabled="loading" @click="load()">刷新</button></div>
     </div>
 
