@@ -32,6 +32,11 @@ function amountText(n: number): string {
       </button>
     </div>
 
+    <div v-if="walletStore.error" class="alert alert-error wallet-error">
+      {{ walletStore.error }}
+      <button class="btn btn-ghost btn-sm" :disabled="walletStore.loading" @click="walletStore.refreshAll()">重试</button>
+    </div>
+
     <div class="stat-grid">
       <div v-for="s in stats" :key="s.label" class="card stat-card">
         <span class="stat-label">{{ s.label }}</span>
@@ -80,6 +85,12 @@ function amountText(n: number): string {
 </template>
 
 <style scoped>
+.wallet-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

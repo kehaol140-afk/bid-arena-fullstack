@@ -47,10 +47,12 @@ public class WalletController {
     public ApiResult<List<LedgerVO>> ledger(Context ctx) {
         try {
             long uid = AuthInterceptor.currentUserId(ctx);
-            return ApiResult.ok(sql.sql("""
+            // queryRowList 无行时可能返回 null；null data 会被序列化省略，破坏 data:[] 契约
+            List<LedgerVO> rows = sql.sql("""
                             SELECT id, auction_id, request_id, type, amount, balance_after, frozen_after, remark, created_at
                             FROM wallet_ledger WHERE user_id = ? ORDER BY id DESC LIMIT 200
-                            """, uid).queryRowList(LedgerVO.class));
+                            """, uid).queryRowList(LedgerVO.class);
+            return ApiResult.ok(rows != null ? rows : List.of());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
